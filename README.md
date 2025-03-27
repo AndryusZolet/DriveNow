@@ -10,7 +10,7 @@
   <p align="center">
     Andryus Zolet/Eduardo Ferreira/Leonardo Henrique/Nicolas Medeiros/Valentin Rojas
     <br />
-    <a href="https://github.com/AndryusZolet/DriveNow"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/AndryusZolet/DriveNow"><strong>Documentação »</strong></a>
     <br />
     <br />
   </p>
