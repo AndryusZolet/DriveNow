@@ -1,7 +1,6 @@
 <!-- PROJECT LOGO -->
-<br />
 <div align="center">
-    <img src="Documentacao/Logo.png" alt="Logo" width="80" height="80">
+    <img src="Documentacao/Logo.png" alt="Logo" width="160" height="160">
   </a>
 
   <h3 align="center">DriveNow</h3>
@@ -35,7 +34,3 @@ Desenvolvido com as melhores práticas de código limpo e eficiência, o DriveNo
 
 
 ### Built With
-
-
-
-
