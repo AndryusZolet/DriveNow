@@ -10,23 +10,26 @@
   <p align="center">
     Andryus Zolet/Eduardo Ferreira/Leonardo Henrique/Nicolas Medeiros/Valentin Rojas
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/AndryusZolet/DriveNow"><strong>Explore the docs »</strong></a>
     <br />
     <br />
   </p>
 </div>
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## Sobre o Projeto
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+O DriveNow é um aplicativo inovador de aluguel de veículos que conecta você ao carro perfeito de forma rápida, segura e descomplicada. Seja para uma viagem, um passeio ou necessidades do dia a dia, o DriveNow oferece uma frota diversificada de veículos com opções que se adaptam ao seu estilo e orçamento.
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+Recursos Principais:
+✅ Busca Inteligente – Encontre carros por modelo, categoria ou localização.
+✅ Reserva Rápida – Alugue em poucos toques, com confirmação instantânea.
+✅ Pagamento Seguro – Diversas formas de pagamento com transações criptografadas.
+✅ Avaliação de Veículos – Confira avaliações de outros usuários antes de reservar.
+✅ Suporte 24/7 – Assistência dedicada para qualquer necessidade durante o aluguel.
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
+Tecnologia Moderna:
+Desenvolvido com as melhores práticas de código limpo e eficiência, o DriveNow garante uma experiência fluida e sem complicações. Nosso objetivo é economizar seu tempo para que você possa focar no que realmente importa: sua jornada.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
