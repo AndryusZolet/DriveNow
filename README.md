@@ -7,7 +7,7 @@
 
   <p align="center">
     <br />
-    <a href="https://github.com/AndryusZolet/DriveNow"><strong>Documentação »</strong></a>
+    <a href="https://github.com/AndryusZolet/DriveNow/tree/main/Documentacao"><strong>Documentação »</strong></a>
     <br />
     <br />
       <a href="https://github.com/C4pivara35">Andryus Zolet</a>
