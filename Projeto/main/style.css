@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&family=Ubuntu&display=swap');
 *{
     margin: 0;
     padding: 0;
@@ -10,7 +11,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #2f2f2f;
+    background: #ffffff;
     background-size: cover;
     background-position: center;
 }
@@ -25,12 +26,12 @@ header {
     justify-content: space-between;
     align-items: center;
     z-index: 99;
+    background-color: #2f2f2f;
 }
 
 .logo{
      user-select: none;
-     width: 256px;
-     height: 256px;
+     width: 200px;
 }
 
 .navegation a{
@@ -252,4 +253,106 @@ header {
 
 .login-register p a:hover{
     text-decoration: underline;
+}
+
+footer {
+    background-color: #2f2f2f;
+    color: #fff;
+    
+}
+
+.footer_info{
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    padding: 50px 0;
+}
+
+.footer_info .footer_width {
+    padding: 0 15px;
+}
+
+.footer_info h2{
+    font-size: 1.5em;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.about , .contact{
+    width: 40%;
+}
+
+.link {
+    width: 20%;
+}
+
+.social-media {
+    margin-top: 30px;
+}
+
+.social-media ul {
+    display: flex;
+}
+
+.social-media ul li a{
+    display: inline-block;
+    margin-right: 50px;
+    width: 50px;
+    height: 50px;
+    padding-top: 12px;
+    background-color: transparent;
+    border: 1px solid #fff;
+    text-align: center;
+}
+
+.social-media ul li a:hover{
+    background-color: #fff;
+    color: #000000;
+}
+
+.link ul li a{
+    display: block;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.link ul li a:hover{
+    color: #fff;
+}
+
+.contact ul li{
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.contact ul li span {
+    margin-right: 15px;
+}
+
+.copy-right {
+    padding: 20px 0;
+    text-align: center;
+}
+
+@media screen and (max-width: 992px) {
+    
+    .about, .contact{
+        width: 30%;
+    }
+    .link{
+        width: 30%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    
+    .about, .contact, .link{
+        width: 100%;
+        margin-bottom: 30px;
+    }
+
+    .footer_info{
+        flex-direction: column;
+    }
 }
