@@ -1,38 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="for-box register">
-        <h2>Registre-se</h2>
-        <form action="#">
-            <div class="input-box">
-                <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
-                <input type="text" required>
-                <label>Usuario</label>
-            </div>
-            <div class="input-box">
-                <span class="icon"><ion-icon name="mail"></ion-icon></span>
-                <input type="email" required>
-                <label>Email</label>
-            </div>
-            <div class="input-box">
-                <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
-                <input type="password" required>
-                <label>Senha</label>
-            </div>
-            <div class="remember-forgot">
-                <label><input type="checkbox"> aceita os termos de uso?</label>
-            </div>
-            <button type="submit" class="btn">Registrar</button>
-            <div class="login-register">
-                <p>Ja possui uma conta? <a href="./login.html" class="login-link">Login</a></p>
-            </div>
-        </form>
-    </div>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="for-box register">
+            <h2>Registre-se</h2>
+            <form action="php/register.php" method="POST">
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+                    <input type="text" name="usuario" required>
+                    <label>Usuario</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                    <input type="email" name="email" required>
+                    <label>Email</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                    <input type="password" name="password" required>
+                    <label>Senha</label>
+                </div>
+                <div class="remember-forgot">
+                    <label><input type="checkbox"> Aceita os termos de uso?</label>
+                </div>
+                <button type="submit" class="btn">Registrar</button>
+                <div class="login-register">
+                    <p>Ja possui uma conta? <a href="./login.html" class="login-link">Login</a></p>
+                </div>
+            </form>
+        </div>
+    </body>
 </html>
