@@ -95,3 +95,5 @@ if(isset($_POST['emailsubscibe'])) {
             <p>© DriveNow LLC 2025 - 2025, College Project.</p>
         </div>
     </footer>
+
+    
