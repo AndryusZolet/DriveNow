@@ -356,3 +356,45 @@ footer {
         flex-direction: column;
     }
 }
+
+main  {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+
+.hero {
+    max-width: 600px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #ff6600;
+    color: white;
+    font-size: 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: #cc5500;
+}
