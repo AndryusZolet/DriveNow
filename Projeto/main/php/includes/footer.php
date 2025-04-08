@@ -44,11 +44,12 @@ if(isset($_POST['emailsubscibe'])) {
         <div class="footer_width about">
             <h2>Sobre</h2>
             <p>
-                DriveNow é uma plataforma inovadora que conecta motoristas e passageiros, 
-                oferecendo uma experiência de transporte eficiente e conveniente. 
-                Nossa missão é facilitar a mobilidade urbana, proporcionando um serviço seguro e acessível para 
-                todos. Com tecnologia de ponta e um compromisso com a qualidade, estamos transformando a forma 
-                como as pessoas se deslocam nas cidades.
+            DriveNow é uma plataforma inovadora que conecta motoristas e passageiros,
+            oferecendo uma experiência de transporte eficiente e conveniente.
+            Nossa missão é facilitar a mobilidade urbana, proporcionando um serviço, acessível e de alta qualidade
+            para todos. Com tecnologia de ponta, compromisso com a excelência e foco na sustentabilidade, estamos 
+            transformando a forma como as pessoas se deslocam nas cidades, tornando o transporte mais ágil, confiável 
+            e adaptado às necessidades dos usuários.
             </p>
             <div class="social-media">
                 <ul>
