@@ -258,6 +258,10 @@ header {
 footer {
     background-color: #2f2f2f;
     color: #fff;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     
 }
 
