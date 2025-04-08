@@ -36,7 +36,7 @@ function registrarUsuario($primeiroNome, $segundoNome, $email, $senha) {
 function fazerLogin($email, $senha) {
     global $pdo;
     
-    $stmt = $pdo->prepare("SELECT id, primeiro_nome, segundo_nome, e_mail, senha FROM conta_usuario WHERE e_mail = ?");
+    $stmt = $pdo->prepare("SELECT id, primeiro_nome, segundo_nome, e_mail, senha, data_de_entrada FROM conta_usuario WHERE e_mail = ?");
     $stmt->execute([$email]);
     $usuario = $stmt->fetch();
     
