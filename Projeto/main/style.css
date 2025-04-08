@@ -26,7 +26,12 @@ header {
     justify-content: space-between;
     align-items: center;
     z-index: 99;
-    background-color: #2f2f2f;
+    background-color: #000000;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
 }
 
 .logo{
@@ -255,14 +260,14 @@ header {
     text-decoration: underline;
 }
 
+/* Footer */
 footer {
-    background-color: #2f2f2f;
+    background-color: #000000;
     color: #fff;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    
 }
 
 .footer_info{
@@ -296,6 +301,7 @@ footer {
 
 .social-media ul {
     display: flex;
+    list-style: none;
 }
 
 .social-media ul li a{
