@@ -21,7 +21,8 @@ require_once 'includes/header.php';
             <p class="card-text">
                 <strong>Nome:</strong> <?= htmlspecialchars($usuario['primeiro_nome'] . ' ' . $usuario['segundo_nome']) ?><br>
                 <strong>E-mail:</strong> <?= htmlspecialchars($usuario['e_mail']) ?><br>
-                <strong>Membro desde:</strong> <?= date('d/m/Y', strtotime($usuario['data_de_entrada'])) ?>
+                <strong>Membro desde:</strong> 
+                <?= isset($usuario['data_de_entrada']) && $usuario['data_de_entrada'] ? date('d/m/Y', strtotime($usuario['data_de_entrada'])) : 'Data não disponível' ?>
             </p>
             <a href="logout.php" class="btn btn-danger">Sair</a>
         </div>
