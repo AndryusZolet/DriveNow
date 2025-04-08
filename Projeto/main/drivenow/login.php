@@ -11,7 +11,7 @@ $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
-    $senha = $_POST['senha'];
+    $senha = $_POST['password'];
     
     $resultado = fazerLogin($email, $senha);
     
@@ -25,28 +25,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 require_once 'includes/header.php';
 ?>
-
-<div class="container">
-    <h2>Login</h2>
-    
-    <?php if ($erro): ?>
-        <div class="alert alert-danger"><?= $erro ?></div>
-    <?php endif; ?>
-    
-    <form method="post">
-        <div class="form-group">
-            <label for="email">E-mail:</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="./assets/style.css">
+    </head>
+    <div class="container">
+        <h2>Login</h2>
         
-        <div class="form-group">
-            <label for="senha">Senha:</label>
-            <input type="password" class="form-control" id="senha" name="senha" required>
-        </div>
+        <?php if ($erro): ?>
+            <div class="alert alert-danger"><?= $erro ?></div>
+        <?php endif; ?>
         
-        <button type="submit" class="btn btn-primary">Entrar</button>
-        <p class="mt-3">Não tem uma conta? <a href="cadastro.php">Cadastre-se</a></p>
-    </form>
-</div>
+        <form method="POST">
+            <div class="input-box">
+                <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                <input type="email" name="email" required>
+                <label>Email</label>
+            </div>
+            <div class="input-box">
+                <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                <input type="password" name="password" required>
+                <label>Senha</label>
+            </div>
+            <div class="remember-forgot">
+                <label><input type="checkbox" name="remember">Lembre-me</label>
+                <a href="#">Esqueci a senha</a>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <div class="login-register">
+                <p>Ainda não possui uma conta? <a href="./cadastro.php" class="register-link">Registre-se</a></p>
+            </div>
+        </form>
+    </div>
+</html>
 
 <?php require_once 'includes/footer.php'; ?>

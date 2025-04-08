@@ -1,9 +1,9 @@
 <?php
 // Configurações do banco de dados
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'DriveNow');
-define('DB_USER', 'drivenow_user'); // Substitua pelo seu usuário do MySQL
-define('DB_PASS', 'Teste@1234');     // Substitua pela sua senha do MySQL
+define('DB_NAME', 'drivenow');
+define('DB_USER', 'root'); // Substitua pelo seu usuário do MySQL
+define('DB_PASS', '');     // Substitua pela sua senha do MySQL
 
 // Tentativa de conexão
 try {
