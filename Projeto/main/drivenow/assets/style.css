@@ -198,3 +198,144 @@ body {
 .login-register p a:hover{
     text-decoration: underline;
 }
+
+/*  Cadastro Usuario  */
+.register-main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 40px 20px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    margin: 0 auto;
+}
+
+.register-card h2 {
+    text-align: center;
+    color: #000;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.register-message {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.register-message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #c62828;
+}
+
+.register-message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #2e7d32;
+}
+
+.register-form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.register-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.register-form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.register-form-group input:focus {
+    border-color: #000;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.register-form-group .input-icon {
+    position: absolute;
+    right: 15px;
+    top: 38px;
+    color: #666;
+}
+
+.register-terms {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+}
+
+.register-terms input {
+    margin-right: 10px;
+}
+
+.register-terms label {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.register-submit-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.register-submit-btn:hover {
+    background-color: #333;
+}
+
+.register-login-link {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 0.9rem;
+}
+
+.register-login-link a {
+    color: #000;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-login-link a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .register-card {
+        padding: 30px 20px;
+    }
+    
+    .register-card h2 {
+        font-size: 1.7rem;
+    }
+}
+
+/*  Fim registro  */

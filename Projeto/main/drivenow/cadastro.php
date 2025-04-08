@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $senha = $_POST['senha'];
     $confirmarSenha = $_POST['confirmar_senha'];
     
-    // Validações básicas (CORREÇÃO APLICADA AQUI - FALTAVA PARÊNTESE)
+    // Validações básicas
     if (empty($primeiroNome)) {
         $erro = 'O primeiro nome é obrigatório.';
     } elseif (empty($email)) {
@@ -37,46 +37,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 require_once 'includes/header.php';
 ?>
 
-<div class="container">
-    <h2>Cadastro</h2>
-    
-    <?php if ($erro): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars($erro) ?></div>
-    <?php endif; ?>
-    
-    <?php if ($sucesso): ?>
-        <div class="alert alert-success"><?= htmlspecialchars($sucesso) ?></div>
-    <?php endif; ?>
-    
-    <form method="post">
-        <div class="form-group">
-            <label for="primeiro_nome">Primeiro Nome:</label>
-            <input type="text" class="form-control" id="primeiro_nome" name="primeiro_nome" required>
-        </div>
+<div class="wrapper">
+    <div class="for-box register">
+        <h2>Registre-se</h2>
         
-        <div class="form-group">
-            <label for="segundo_nome">Segundo Nome:</label>
-            <input type="text" class="form-control" id="segundo_nome" name="segundo_nome">
-        </div>
+        <?php if ($erro): ?>
+            <div class="alert" style="color: #721c24; background: #f8d7da; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                <?= htmlspecialchars($erro) ?>
+            </div>
+        <?php endif; ?>
         
-        <div class="form-group">
-            <label for="email">E-mail:</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </div>
+        <?php if ($sucesso): ?>
+            <div class="alert" style="color: #155724; background: #d4edda; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                <?= htmlspecialchars($sucesso) ?>
+            </div>
+        <?php endif; ?>
         
-        <div class="form-group">
-            <label for="senha">Senha:</label>
-            <input type="password" class="form-control" id="senha" name="senha" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="confirmar_senha">Confirmar Senha:</label>
-            <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Cadastrar</button>
-        <p class="mt-3">Já tem uma conta? <a href="login.php">Faça login</a></p>
-    </form>
+        <form method="POST">
+            <div class="input-box">
+                <input type="text" name="primeiro_nome" required>
+                <label>Primeiro Nome</label>
+                <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+            </div>
+            
+            <div class="input-box">
+                <input type="text" name="segundo_nome">
+                <label>Segundo Nome</label>
+                <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+            </div>
+            
+            <div class="input-box">
+                <input type="email" name="email" required>
+                <label>E-mail</label>
+                <span class="icon"><ion-icon name="mail"></ion-icon></span>
+            </div>
+            
+            <div class="input-box">
+                <input type="password" name="senha" required>
+                <label>Senha</label>
+                <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+            </div>
+            
+            <div class="input-box">
+                <input type="password" name="confirmar_senha" required>
+                <label>Confirmar Senha</label>
+                <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+            </div>
+            
+            <div class="remember-forgot">
+                <label><input type="checkbox" required> Aceito os termos de uso</label>
+            </div>
+            
+            <button type="submit" class="btn">Registrar</button>
+            
+            <div class="login-register">
+                <p>Já possui uma conta? <a href="login.php">Login</a></p>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 <?php require_once 'includes/footer.php'; ?>
