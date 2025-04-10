@@ -24,11 +24,12 @@ require_once 'includes/header.php';
                 <strong>Membro desde:</strong> 
                 <?= isset($usuario['data_de_entrada']) && $usuario['data_de_entrada'] ? date('d/m/Y', strtotime($usuario['data_de_entrada'])) : 'Data não disponível' ?>
             </p>
+            <a href="editar_perfil.php" class="btn btn-primary">Editar Perfil</a>
             <a href="logout.php" class="btn btn-danger">Sair</a>
         </div>
     </div>
     
-    <!-- dashboard -->
+    <!-- Aqui você pode adicionar mais conteúdo do dashboard -->
     <div class="row mt-4">
         <div class="col-md-6">
             <div class="card">
