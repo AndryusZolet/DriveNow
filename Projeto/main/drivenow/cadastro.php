@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($resultado === true) {
             $sucesso = 'Cadastro realizado com sucesso! Faça login para continuar.';
-            header('Refresh: 3; URL=login.php');
+            header('Location: login.php');
         } else {
             $erro = $resultado;
         }
