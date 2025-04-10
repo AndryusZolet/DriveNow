@@ -28,7 +28,7 @@ require_once 'includes/header.php';
         </div>
     </div>
     
-    <!-- Aqui você pode adicionar mais conteúdo do dashboard -->
+    <!-- dashboard -->
     <div class="row mt-4">
         <div class="col-md-6">
             <div class="card">

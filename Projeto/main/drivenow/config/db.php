@@ -2,8 +2,8 @@
 // Configurações do banco de dados
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'drivenow');
-define('DB_USER', 'root'); // Substitua pelo seu usuário do MySQL
-define('DB_PASS', '');     // Substitua pela sua senha do MySQL
+define('DB_USER', 'root'); 
+define('DB_PASS', '');
 
 // Tentativa de conexão
 try {
