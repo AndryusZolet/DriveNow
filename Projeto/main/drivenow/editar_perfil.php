@@ -125,7 +125,7 @@ require_once 'includes/header.php';
                         <div class="mb-3">
                             <label for="nova_senha" class="form-label">Nova Senha</label>
                             <input type="password" class="form-control" id="nova_senha" name="nova_senha">
-                            <div class="form-text">Mínimo de 8 caracteres</div>
+                            <div class="form-text">Mínimo de 5 caracteres</div>
                         </div>
                         
                         <div class="mb-3">
