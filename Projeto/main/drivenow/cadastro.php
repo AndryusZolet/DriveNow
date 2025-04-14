@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = 'A senha é obrigatória.';
     } elseif ($senha !== $confirmarSenha) {
         $erro = 'As senhas não coincidem.';
-    } elseif (mb_strlen($senha) < 8) {
-        $erro = 'A senha deve ser maior do que 8 caracteres.';
+    } elseif (mb_strlen($senha) < 5) {
+        $erro = 'A senha deve ser maior do que 5 caracteres.';
     } elseif (!isset($_POST['termos_aceitos'])) {
         $erro = 'Você precisa aceitar os termos de uso para continuar.';
     } else {
