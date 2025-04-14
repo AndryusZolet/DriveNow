@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($resultado === true) {
             $sucesso = 'Cadastro realizado com sucesso! Faça login para continuar.';
-            header('Location: login.php');
+            header('Location: login.php?email=' . urlencode($email) . '&sucesso=1');
         } else {
             $erro = $resultado;
         }
@@ -67,17 +67,17 @@ require_once 'includes/header.php';
             <form method="POST">
                 <div class="input-box">
                     <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
-                    <input type="text" name="primeiro_nome" required>
+                    <input type="text" name="primeiro_nome" required value="<?= isset($_POST['primeiro_nome']) ? htmlspecialchars($_POST['primeiro_nome']) : '' ?>">
                     <label>Nome</label>
                 </div>
                 <div class="input-box">
                     <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
-                    <input type="text" name="segundo_nome" required>
+                    <input type="text" name="segundo_nome" required value="<?= isset($_POST['segundo_nome']) ? htmlspecialchars($_POST['segundo_nome']) : '' ?>">
                     <label>Sobrenome</label>
                 </div>
                 <div class="input-box">
                     <span class="icon"><ion-icon name="mail"></ion-icon></span>
-                    <input type="email" name="email" required>
+                    <input type="email" name="email" required value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
                     <label>Email</label>
                 </div>
                 <div class="input-box">
@@ -91,11 +91,14 @@ require_once 'includes/header.php';
                     <label>Confirmar Senha</label>
                 </div>
                 <div class="remember-forgot">
-                    <label><input type="checkbox" name="termos_aceitos" required> <a href="./termos.html">Aceita os termos de uso?</a></label>
+                    <label>
+                        <input type="checkbox" name="termos_aceitos" required <?= isset($_POST['termos_aceitos']) ? 'checked' : '' ?>>
+                        <a href="./termos.html">Aceita os termos de uso?</a>
+                    </label>
                 </div>
                 <button type="submit" class="btn">Registrar</button>
                 <div class="login-register">
-                    <p>Ja possui uma conta? <a href="./login.php" class="login-link">Login</a></p>
+                    <p>Já possui uma conta? <a href="./login.php" class="login-link">Login</a></p>
                 </div>
             </form>
         </div>

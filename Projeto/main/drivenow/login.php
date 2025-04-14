@@ -43,7 +43,7 @@ require_once 'includes/header.php';
         <form method="POST">
             <div class="input-box">
                 <span class="icon"><ion-icon name="mail"></ion-icon></span>
-                <input type="email" name="email" required>
+                <input type="email" name="email" value="<?= isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '' ?>" required>
                 <label>Email</label>
             </div>
             <div class="input-box">
