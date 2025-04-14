@@ -22,6 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = 'A senha é obrigatória.';
     } elseif ($senha !== $confirmarSenha) {
         $erro = 'As senhas não coincidem.';
+    } elseif (mb_strlen($senha) < 8) {
+        $erro = 'A senha deve ser maior do que 8 caracteres.';
+    } elseif (!isset($_POST['termos_aceitos'])) {
+        $erro = 'Você precisa aceitar os termos de uso para continuar.';
     } else {
         $resultado = registrarUsuario($primeiroNome, $segundoNome, $email, $senha);
         
@@ -87,7 +91,7 @@ require_once 'includes/header.php';
                     <label>Confirmar Senha</label>
                 </div>
                 <div class="remember-forgot">
-                    <label><input type="checkbox"> Aceita os termos de uso?</label>
+                    <label><input type="checkbox" name="termos_aceitos" required> <a href="./termos.html">Aceita os termos de uso?</a></label>
                 </div>
                 <button type="submit" class="btn">Registrar</button>
                 <div class="login-register">
