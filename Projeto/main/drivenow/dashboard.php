@@ -58,7 +58,7 @@ require_once 'includes/header.php';
                         </div>
                     <?php else: ?>
                         <p class="card-text">Cadastre-se como proprietário para gerenciar veículos.</p>
-                        <a href="registrar_dono.php" class="btn btn-primary">Tornar-se Proprietário</a>
+                        <a href="registrar_dono.php" class="btn btn-primary">Torne-se um Proprietário</a>
                     <?php endif; ?>
                 </div>
             </div>
