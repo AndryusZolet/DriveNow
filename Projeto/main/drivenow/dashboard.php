@@ -70,7 +70,8 @@ require_once 'includes/header.php';
                 <div class="card-body">
                     <h5 class="card-title">Suas Reservas</h5>
                     <p class="card-text">Veja e gerencie suas reservas de veículos.</p>
-                    <a href="minhas_reservas.php" class="btn btn-primary">Ver Reservas</a>
+                    <!-- <a> href="minhas_reservas.php" </a> REMOVIDO DE BAIXO -->
+                    <a onclick="return alert('Função Desativada.');" class="btn btn-primary">Ver Reservas</a>
                 </div>
             </div>
         </div>
@@ -83,7 +84,8 @@ require_once 'includes/header.php';
                 <div class="card-body">
                     <h5 class="card-title">Favoritos</h5>
                     <p class="card-text">Veículos que você marcou como favorito.</p>
-                    <a href="favoritos.php" class="btn btn-primary">Ver Favoritos</a>
+                    <!-- <a> href="favoritos.php" </a> REMOVIDO DE BAIXO -->
+                    <a onclick="return alert('Função Desativada.');" class="btn btn-primary">Ver Favoritos</a>
                 </div>
             </div>
         </div>
@@ -94,7 +96,8 @@ require_once 'includes/header.php';
                 <div class="card-body">
                     <h5 class="card-title">Configurações</h5>
                     <p class="card-text">Ajuste suas preferências e configurações de conta.</p>
-                    <a href="configuracoes.php" class="btn btn-primary">Acessar Configurações</a>
+                    <!-- <a> href="configuracoes.php" </a> REMOVIDO DE BAIXO -->
+                    <a onclick="return alert('Função Desativada.');" class="btn btn-primary" aria-disabled="true">Acessar Configurações</a>
                 </div>
             </div>
         </div>

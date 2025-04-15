@@ -1,4 +1,5 @@
 <?php
+session_start(); // Adicione isso como primeira linha
 require_once 'includes/auth.php';
 
 $erro = '';
@@ -31,7 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($resultado === true) {
             $sucesso = 'Cadastro realizado com sucesso! Faça login para continuar.';
-            header('Location: login.php?email=' . urlencode($email) . '&sucesso=1');
+            $_SESSION['login_auto'] = [
+                'email' => $email,
+                'senha' => $senha
+            ];
+            header('Location: login.php?sucesso=1');
+            exit;
         } else {
             $erro = $resultado;
         }
@@ -93,7 +99,7 @@ require_once 'includes/header.php';
                 <div class="remember-forgot">
                     <label>
                         <input type="checkbox" name="termos_aceitos" required <?= isset($_POST['termos_aceitos']) ? 'checked' : '' ?>>
-                        <a href="./termos.html">Aceita os termos de uso?</a>
+                        <a href="../termos.html" target="_blank">Aceita os termos de uso?</a>
                     </label>
                 </div>
                 <button type="submit" class="btn">Registrar</button>

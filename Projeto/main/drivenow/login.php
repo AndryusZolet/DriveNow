@@ -1,4 +1,5 @@
 <?php
+session_start(); // Adicione isso como primeira linha
 require_once 'includes/auth.php';
 
 // Se o usuário já estiver logado, redireciona para o dashboard
@@ -8,6 +9,15 @@ if (estaLogado()) {
 }
 
 $erro = '';
+
+$emailPreenchido = '';
+$senhaPreenchida = '';
+
+if (isset($_SESSION['login_auto'])) {
+    $emailPreenchido = $_SESSION['login_auto']['email'];
+    $senhaPreenchida = $_SESSION['login_auto']['senha'];
+    unset($_SESSION['login_auto']); // Limpa os dados após o primeiro uso
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
@@ -43,12 +53,12 @@ require_once 'includes/header.php';
         <form method="POST">
             <div class="input-box">
                 <span class="icon"><ion-icon name="mail"></ion-icon></span>
-                <input type="email" name="email" value="<?= isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '' ?>" required>
+                <input type="email" name="email" required value="<?= htmlspecialchars($emailPreenchido) ?>">
                 <label>Email</label>
             </div>
             <div class="input-box">
                 <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
-                <input type="password" name="password" required>
+                <input type="password" name="password" required <?= $senhaPreenchida ? 'value="' . htmlspecialchars($senhaPreenchida) . '"' : '' ?>>
                 <label>Senha</label>
             </div>
             <div class="remember-forgot">

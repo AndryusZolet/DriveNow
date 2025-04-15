@@ -1,5 +1,5 @@
 -- Criando o banco de dados
-DROP DATABASE DriveNow;
+-- DROP DATABASE DriveNow;
 CREATE DATABASE IF NOT EXISTS DriveNow;
 USE DriveNow;
 
@@ -26,6 +26,17 @@ CREATE TABLE cidade (
     cidade_nome VARCHAR(100)
 );
 
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Porto Alegre');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Florianópolis');
+INSERT INTO drivenow.cidade (cidade_nom) VALUES ('Curitiba');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('São Paulo');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Rio de Janeiro');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Brasília');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Belo Horizonte');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Vitória');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Campo Grande');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Goiânia');
+
 -- Tabela de estados (referencia cidade)
 CREATE TABLE estado (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -33,6 +44,17 @@ CREATE TABLE estado (
     estado_nome VARCHAR(100),
     FOREIGN KEY (cidade_id) REFERENCES cidade(id) ON DELETE CASCADE
 );
+
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Rio Grande do Sul');       -- Porto Alegre
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Santa Catarina');           -- Florianópolis
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Paraná');                   -- Curitiba
+INSERT INTO drivenow.estado (estado_nome) VALUES ('São Paulo');                -- São Paulo
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Rio de Janeiro');           -- Rio de Janeiro
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Distrito Federal');         -- Brasília
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Minas Gerais');             -- Belo Horizonte
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Espírito Santo');           -- Vitória
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Mato Grosso do Sul');       -- Campo Grande
+INSERT INTO drivenow.estado (estado_nome) VALUES ('Goiás');                   -- Goiânia
 
 -- Tabela de locais (referencia estado)
 CREATE TABLE local (
@@ -42,11 +64,32 @@ CREATE TABLE local (
     FOREIGN KEY (estado_id) REFERENCES estado(id) ON DELETE CASCADE
 );
 
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Porto Alegre');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Florianópolis');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Curitiba');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('São Paulo');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Rio de Janeiro');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Brasília');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Belo Horizonte');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Vitória');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Campo Grande');
+-- INSERT INTO drivenow.local (nome_local) VALUES ('Goiânia');
+
+
 -- Tabela de categorias de veículos
 CREATE TABLE categoria_veiculo (
     id INT PRIMARY KEY AUTO_INCREMENT,
     categoria VARCHAR(100)
 );
+
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (1, 'Coupé');
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (2, 'Sedan');
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (3, 'SUV');
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (4, 'Hatch');
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (5, 'Picape');
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (6, 'Conversível');
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (7, 'Perua');
+INSERT INTO drivenow.categoria_veiculo (id, categoria) VALUES (8, 'Minivan');
 
 -- Tabela de veículos
 CREATE TABLE veiculo (
