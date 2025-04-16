@@ -1,6 +1,6 @@
 </main>
 
-<footer class="bg-dark text-white py-3">
+<footer class="bg-dark text-white py-3 mt-auto">
     <div class="container text-center">
         <p>&copy; <?= date('Y') ?> DriveNow. Todos os direitos reservados.</p>
     </div>

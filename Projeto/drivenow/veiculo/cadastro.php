@@ -1,8 +1,8 @@
 <?php
-require_once 'includes/auth.php';
+require_once '../includes/auth.php';
 
 if (!estaLogado()) {
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
@@ -27,8 +27,10 @@ $locais = $pdo->query("SELECT * FROM local")->fetchAll();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $dono) {
     $dados = [
         'dono_id' => $dono['id'],
-        'veiculo_nome' => trim($_POST['veiculo_nome']),
+        'veiculo_marca' => trim($_POST['veiculo_marca']),
+        'veiculo_modelo' => trim($_POST['veiculo_modelo']),
         'veiculo_ano' => trim($_POST['veiculo_ano']),
+        'veiculo_placa' => trim($_POST['veiculo_placa']),
         'veiculo_km' => trim($_POST['veiculo_km']),
         'veiculo_cambio' => trim($_POST['veiculo_cambio']),
         'veiculo_combustivel' => trim($_POST['veiculo_combustivel']),
@@ -40,17 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $dono) {
     ];
     
     // Validações
-    if (empty($dados['veiculo_nome']) || empty($dados['veiculo_ano'])) {
-        $erro = 'Nome e ano do veículo são obrigatórios.';
+    if (empty($dados['veiculo_marca']) || empty($dados['veiculo_modelo']) || empty($dados['veiculo_ano']) || empty($dados['veiculo_placa']) || empty($dados['veiculo_km']) || empty($dados['veiculo_cambio']) || empty($dados['veiculo_combustivel']) || empty($dados['veiculo_portas']) || empty($dados['veiculo_acentos']) || empty($dados['veiculo_tracao'])) {
+        $erro = 'Todos os campos são obrigatórios.';
     } elseif (!is_numeric($dados['veiculo_ano']) || $dados['veiculo_ano'] < 1900 || $dados['veiculo_ano'] > date('Y') + 1) {
         $erro = 'Ano do veículo inválido.';
     } else {
-        try {
+        try { // precisa arrumar na DB a tabela veiculo.veiculo_placa e veiculo.marca e veiculo.modelo
             $stmt = $pdo->prepare("INSERT INTO veiculo 
-                                  (dono_id, veiculo_nome, veiculo_ano, veiculo_km, veiculo_cambio, 
+                                  (dono_id, veiculo_marca, veiculo_modelo, veiculo_ano, veiculo_placa, veiculo_km, veiculo_cambio,
                                    veiculo_combustivel, veiculo_portas, veiculo_acentos, veiculo_tracao,
                                    local_id, categoria_veiculo_id) 
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute(array_values($dados));
             
             $sucesso = 'Veículo cadastrado com sucesso!';
@@ -60,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $dono) {
     }
 }
 
-require_once 'includes/header.php';
+require_once '../includes/header.php';
 ?>
 
 <div class="container mt-5">
@@ -82,23 +84,66 @@ require_once 'includes/header.php';
                     <?php if ($dono): ?>
                     <form method="POST">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="veiculo_nome" class="form-label">Nome do Veículo</label>
-                                <input type="text" class="form-control" id="veiculo_nome" name="veiculo_nome" required>
+                            <div class="col-md-3 mb-3">
+                                <label for="veiculo_marca" class="form-label">Nome do Veículo</label>
+                                <!-- <input type="text" class="form-control" id="veiculo_nome" name="veiculo_nome" required> -->
+                                <select class="form-select" id="veiculo_marca" name="veiculo_marca" required>
+                                    <option value="">Selecione uma marca</option>
+                                    <option value="Chevrolet">Chevrolet</option>
+                                    <option value="Fiat">Fiat</option>
+                                    <option value="Ford">Ford</option>
+                                    <option value="Volkswagen">Volkswagen</option>
+                                    <option value="Toyota">Toyota</option>
+                                    <option value="Hyundai">Hyundai</option>
+                                    <option value="Honda">Honda</option>
+                                    <option value="Renault">Renault</option>
+                                    <option value="Nissan">Nissan</option>
+                                    <option value="Peugeot">Peugeot</option>
+                                    <option value="Citroën">Citroën</option>
+                                    <option value="Jeep">Jeep</option>
+                                    <option value="Mitsubishi">Mitsubishi</option>
+                                    <option value="Kia">Kia</option>
+                                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                                    <option value="BMW">BMW</option>
+                                    <option value="Audi">Audi</option>
+                                    <option value="BYD">BYD</option>
+                                    <option value="Chery">Chery</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="veiculo_modelo" class="form-label">Modelo do Veículo</label>
+                                <select class="form-select" id="veiculo_modelo" name="veiculo_modelo" required>
+                                    <option value="">Selecione o modelo</option>
+                                </select>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="veiculo_ano" class="form-label">Ano</label>
                                 <input type="number" class="form-control" id="veiculo_ano" name="veiculo_ano" 
                                        min="1900" max="<?= date('Y') + 1 ?>" required>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="veiculo_km" class="form-label">Quilometragem</label>
-                                <input type="number" class="form-control" id="veiculo_km" name="veiculo_km" min="0">
+                            <div class="col-md-2 mb-3">
+                                <label for="veiculo_placa" class="form-label">Placa do Veículo</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="veiculo_placa" 
+                                    name="veiculo_placa" 
+                                    required 
+                                    maxlength="8"
+                                    oninput="this.value = this.value.toUpperCase();"
+                                >
+                                <div class="invalid-feedback">
+                                    Digite uma placa válida (Ex: ABC-1234 ou ABC1D23).
+                                </div>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-2 mb-3">
+                                <label for="veiculo_km" class="form-label">Quilometragem</label>
+                                <input type="number" class="form-control" id="veiculo_km" name="veiculo_km" min="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
                                 <label for="veiculo_cambio" class="form-label">Câmbio</label>
                                 <select class="form-select" id="veiculo_cambio" name="veiculo_cambio">
                                     <option value="Automático">Automático</option>
@@ -107,7 +152,7 @@ require_once 'includes/header.php';
                                     <option value="Semi-automático">Semi-automático</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label for="veiculo_combustivel" class="form-label">Combustível</label>
                                 <select class="form-select" id="veiculo_combustivel" name="veiculo_combustivel">
                                     <option value="Gasolina">Gasolina</option>
@@ -118,7 +163,7 @@ require_once 'includes/header.php';
                                     <option value="Híbrido">Híbrido</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label for="veiculo_tracao" class="form-label">Tração</label>
                                 <select class="form-select" id="veiculo_tracao" name="veiculo_tracao">
                                     <option value="Dianteira">Dianteira</option>
@@ -160,13 +205,13 @@ require_once 'includes/header.php';
                         
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">Cadastrar Veículo</button>
-                            <a href="meus_veiculos.php" class="btn btn-secondary">Ver Meus Veículos</a>
+                            <a href="../veiculo/veiculos.php" class="btn btn-secondary">Ver Meus Veículos</a>
                         </div>
                     </form>
                     <?php else: ?>
                         <div class="alert alert-warning">
                             Você precisa registrar-se como proprietário para cadastrar veículos.
-                            <a href="registrar_dono.php" class="alert-link">Clique aqui para se registrar como proprietário</a>.
+                            <a href="../perfil/registrar_dono.php" class="alert-link">Clique aqui para se registrar como proprietário</a>.
                         </div>
                     <?php endif; ?>
                 </div>
@@ -175,4 +220,6 @@ require_once 'includes/header.php';
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<script src="../assets/veiculos.js"></script>
+
+<?php require_once '../includes/footer.php'; ?>

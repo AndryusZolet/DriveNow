@@ -28,7 +28,7 @@ CREATE TABLE cidade (
 
 INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Porto Alegre');
 INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Florianópolis');
-INSERT INTO drivenow.cidade (cidade_nom) VALUES ('Curitiba');
+INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Curitiba');
 INSERT INTO drivenow.cidade (cidade_nome) VALUES ('São Paulo');
 INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Rio de Janeiro');
 INSERT INTO drivenow.cidade (cidade_nome) VALUES ('Brasília');
@@ -97,9 +97,11 @@ CREATE TABLE veiculo (
     local_id INT,
     categoria_veiculo_id INT,
     dono_id INT,
-    veiculo_nome VARCHAR(100),
+    veiculo_marca VARCHAR(50),
+    veiculo_modelo VARCHAR(100),
     veiculo_ano INT,
     veiculo_km INT,
+    veiculo_placa VARCHAR(50),
     veiculo_cambio VARCHAR(50),
     veiculo_combustivel VARCHAR(50),
     veiculo_portas INT,

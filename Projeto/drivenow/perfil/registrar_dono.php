@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/auth.php';
+require_once '../includes/auth.php';
 
 if (!estaLogado()) {
     header('Location: login.php');
@@ -27,13 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$usuario['id']]);
         
         $sucesso = 'Registro como proprietário realizado com sucesso!';
-        header('Location: dashboard.php');
+        header('Location: ../dashboard.php');
     } catch (PDOException $e) {
         $erro = 'Erro ao registrar como proprietário: ' . $e->getMessage();
     }
 }
 
-require_once 'includes/header.php';
+require_once '../includes/header.php';
 ?>
 
 <div class="container mt-5">
@@ -72,4 +72,4 @@ require_once 'includes/header.php';
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once '../includes/footer.php'; ?>

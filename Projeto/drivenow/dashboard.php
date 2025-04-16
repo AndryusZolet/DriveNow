@@ -29,6 +29,18 @@ require_once 'includes/header.php';
     
     <div class="card mt-4">
         <div class="card-body">
+            <?php if ($erro || isset($_GET['erro'])): ?>
+                <div class="alert alert-danger"><
+                    <?= htmlspecialchars($erro ?: $_GET['erro']) ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if ($sucesso || isset($_GET['sucesso'])): ?>
+                <div class="alert alert-success">
+                    <?= htmlspecialchars($sucesso ?: $_GET['sucesso']) ?>
+                </div>
+            <?php endif; ?>
+            
             <h5 class="card-title">Seus Dados</h5>
             <p class="card-text">
                 <strong>Nome:</strong> <?= htmlspecialchars($usuario['primeiro_nome'] . ' ' . $usuario['segundo_nome']) ?><br>
@@ -39,7 +51,7 @@ require_once 'includes/header.php';
                     <br><strong>Veículos cadastrados:</strong> <?= $totalVeiculos ?>
                 <?php endif; ?>
             </p>
-            <a href="editar_perfil.php" class="btn btn-primary">Editar Perfil</a>
+            <a href="./perfil/editar.php" class="btn btn-primary">Editar Perfil</a>
             <a href="logout.php" class="btn btn-danger">Sair</a>
         </div>
     </div>
@@ -53,12 +65,12 @@ require_once 'includes/header.php';
                     <?php if ($dono): ?>
                         <p class="card-text">Você tem <?= $totalVeiculos ?> veículo(s) cadastrado(s).</p>
                         <div class="d-flex gap-2">
-                            <a href="meus_veiculos.php" class="btn btn-primary">Gerenciar Veículos</a>
-                            <a href="cadastro_veiculo.php" class="btn btn-success">Adicionar Veículo</a>
+                            <a href="./veiculo/veiculos.php" class="btn btn-primary">Gerenciar Veículos</a>
+                            <a href="./veiculo/cadastro.php" class="btn btn-success">Adicionar Veículo</a>
                         </div>
                     <?php else: ?>
                         <p class="card-text">Cadastre-se como proprietário para gerenciar veículos.</p>
-                        <a href="registrar_dono.php" class="btn btn-primary">Torne-se um Proprietário</a>
+                        <a href="./perfil/registrar_dono.php" class="btn btn-primary">Torne-se um Proprietário</a>
                     <?php endif; ?>
                 </div>
             </div>

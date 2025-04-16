@@ -99,7 +99,7 @@ require_once 'includes/header.php';
                 <div class="remember-forgot">
                     <label>
                         <input type="checkbox" name="termos_aceitos" required <?= isset($_POST['termos_aceitos']) ? 'checked' : '' ?>>
-                        <a href="../termos.html" target="_blank">Aceita os termos de uso?</a>
+                        <a href="./termos.html" target="_blank">Aceita os termos de uso?</a>
                     </label>
                 </div>
                 <button type="submit" class="btn">Registrar</button>

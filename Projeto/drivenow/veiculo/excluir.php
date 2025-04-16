@@ -1,15 +1,15 @@
 <?php
-require_once 'includes/auth.php';
+require_once '../includes/auth.php';
 
 if (!estaLogado()) {
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit;
 }
 
 $usuario = getUsuario();
 
 if (!isset($_GET['id'])) {
-    header('Location: meus_veiculos.php');
+    header('Location: veiculos.php');
     exit;
 }
 
@@ -20,7 +20,7 @@ $stmt->execute([$usuario['id']]);
 $dono = $stmt->fetch();
 
 if (!$dono) {
-    header('Location: meus_veiculos.php');
+    header('Location: veiculos.php');
     exit;
 }
 
@@ -32,7 +32,7 @@ $stmt->execute([$veiculoId, $dono['id']]);
 $veiculo = $stmt->fetch();
 
 if (!$veiculo) {
-    header('Location: meus_veiculos.php');
+    header('Location: veiculos.php');
     exit;
 }
 
@@ -46,5 +46,5 @@ try {
     $_SESSION['erro'] = 'Erro ao excluir veículo: ' . $e->getMessage();
 }
 
-header('Location: meus_veiculos.php');
+header('Location: veiculos.php');
 exit;

@@ -1,6 +1,6 @@
 
 <?php
-require_once 'includes/auth.php';
+require_once '../includes/auth.php';
 
 // Verificar se o usuário está logado
 if (!estaLogado()) {
@@ -21,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmarSenha = $_POST['confirmar_senha'];
     
     // Validações básicas
-    if (empty($novoPrimeiroNome)) {
-        $erro = 'O primeiro nome é obrigatório.';
+    if (empty($novoPrimeiroNome) || strlen($novoPrimeiroNome) < 3 || empty($novoSegundoNome) || strlen($novoSegundoNome) < 3) {
+        $erro = 'O primeiro nome e o sobrenome são obrigatórios e devem conter mais de 2 caracteres.';
     } else {
         // Verificar se a senha será alterada
         $alterarSenha = !empty($novaSenha);
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['usuario']['primeiro_nome'] = $novoPrimeiroNome;
                     $_SESSION['usuario']['segundo_nome'] = $novoSegundoNome;
                     
-                    $sucesso = 'Perfil atualizado com sucesso!';
+                    header('Location: ../dashboard.php?sucesso=' . urlencode('Perfil atualizado com sucesso!'));
                 }
             } catch (PDOException $e) {
                 $erro = 'Erro ao atualizar perfil: ' . $e->getMessage();
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require_once 'includes/header.php';
+require_once '../includes/header.php';
 ?>
 
 <div class="container edit-profile-container">
@@ -86,7 +86,7 @@ require_once 'includes/header.php';
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">Editar Perfil</h4>
-                            <a href="dashboard.php" class="btn btn-primary">Voltar ao Dashboard</a>
+                            <a href="../dashboard.php" class="btn btn-danger">Voltar ao Dashboard</a>
                     </div>
                 </div>
                 
@@ -134,7 +134,7 @@ require_once 'includes/header.php';
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-success">
                                 <ion-icon name="save-outline"></ion-icon> Salvar Alterações
                             </button>
                         </div>
@@ -145,4 +145,4 @@ require_once 'includes/header.php';
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once '../includes/footer.php'; ?>
