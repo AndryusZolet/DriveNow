@@ -2,26 +2,39 @@
 require_once '../includes/auth.php';
 require_once '../includes/header.php';
 
-// Buscar veículos disponíveis que não têm reservas ativas
 global $pdo;
-$stmt = $pdo->prepare("SELECT v.*, c.categoria, l.nome_local, 
-                      CONCAT(u.primeiro_nome, ' ', u.segundo_nome) AS nome_proprietario
-                      FROM veiculo v
-                      LEFT JOIN categoria_veiculo c ON v.categoria_veiculo_id = c.id
-                      LEFT JOIN local l ON v.local_id = l.id
-                      LEFT JOIN dono d ON v.dono_id = d.id
-                      LEFT JOIN conta_usuario u ON d.conta_usuario_id = u.id
-                      WHERE v.id NOT IN (
-                          SELECT veiculo_id FROM reserva 
-                          WHERE (
-                              (reserva_data BETWEEN CURRENT_DATE AND DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY))
-                              OR 
-                              (devolucao_data BETWEEN CURRENT_DATE AND DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY))
-                              OR
-                              (reserva_data <= CURRENT_DATE AND devolucao_data >= CURRENT_DATE)
-                          )
-                      )
-                      ORDER BY v.id DESC");
+
+// Primeiro verifique se a coluna 'disponivel' existe
+$columnExists = false;
+try {
+    $stmt = $pdo->query("SHOW COLUMNS FROM veiculo LIKE 'disponivel'");
+    $columnExists = ($stmt->rowCount() > 0);
+} catch (PDOException $e) {
+    // Coluna não existe ou erro na consulta
+    $columnExists = false;
+}
+
+// Construa a consulta SQL condicionalmente
+$sql = "SELECT v.*, c.categoria, l.nome_local, 
+       CONCAT(u.primeiro_nome, ' ', u.segundo_nome) AS nome_proprietario
+       FROM veiculo v
+       LEFT JOIN categoria_veiculo c ON v.categoria_veiculo_id = c.id
+       LEFT JOIN local l ON v.local_id = l.id
+       LEFT JOIN dono d ON v.dono_id = d.id
+       LEFT JOIN conta_usuario u ON d.conta_usuario_id = u.id
+       WHERE " . ($columnExists ? "v.disponivel = 1 AND " : "") . "v.id NOT IN (
+           SELECT veiculo_id FROM reserva 
+           WHERE (
+               (reserva_data BETWEEN CURRENT_DATE AND DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY))
+               OR 
+               (devolucao_data BETWEEN CURRENT_DATE AND DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY))
+               OR
+               (reserva_data <= CURRENT_DATE AND devolucao_data >= CURRENT_DATE)
+           )
+       )
+       ORDER BY v.id DESC";
+
+$stmt = $pdo->prepare($sql);
 $stmt->execute();
 $veiculos = $stmt->fetchAll();
 ?>

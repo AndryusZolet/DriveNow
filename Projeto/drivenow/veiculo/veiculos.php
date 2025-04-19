@@ -14,16 +14,29 @@ $stmt = $pdo->prepare("SELECT id FROM dono WHERE conta_usuario_id = ?");
 $stmt->execute([$usuario['id']]);
 $dono = $stmt->fetch();
 
+// verificar se a coluna disponivel existe na tabela veiculo
+$columnExists = false;
+try {
+    $stmt = $pdo->query("SHOW COLUMNS FROM veiculo LIKE 'disponivel'");
+    $columnExists = ($stmt->rowCount() > 0);
+} catch (PDOException $e) {
+    // se houver erro considerar que a coluna não existe
+    $columnExists = false;
+}
+
 if (!$dono) {
     $veiculos = [];
 } else {
-    // Buscar veículos do dono com informações de categoria e local
-    $stmt = $pdo->prepare("SELECT v.*, c.categoria, l.nome_local 
-                          FROM veiculo v
-                          LEFT JOIN categoria_veiculo c ON v.categoria_veiculo_id = c.id
-                          LEFT JOIN local l ON v.local_id = l.id
-                          WHERE v.dono_id = ? 
-                          ORDER BY v.id DESC");
+    // buscar veículos do dono com informações de categoria e local
+    $sql = "SELECT v.*, c.categoria, l.nome_local" . 
+          ($columnExists ? ", v.disponivel" : "") . 
+          " FROM veiculo v
+          LEFT JOIN categoria_veiculo c ON v.categoria_veiculo_id = c.id
+          LEFT JOIN local l ON v.local_id = l.id
+          WHERE v.dono_id = ? 
+          ORDER BY v.id DESC";
+    
+    $stmt = $pdo->prepare($sql);
     $stmt->execute([$dono['id']]);
     $veiculos = $stmt->fetchAll();
 }
@@ -66,11 +79,14 @@ require_once '../includes/header.php';
                         <th>Tração</th>
                         <th>Categoria</th>
                         <th>Localização</th>
+                        <th>Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($veiculos as $veiculo): ?>
+                    <?php foreach ($veiculos as $veiculo): 
+                        $disponivel = $veiculo['disponivel'] ?? 1;
+                    ?>
                         <tr>
                             <td><?= htmlspecialchars($veiculo['veiculo_marca']) ?></td>
                             <td><?= htmlspecialchars($veiculo['veiculo_modelo']) ?></td>
@@ -83,13 +99,26 @@ require_once '../includes/header.php';
                             <td><?= htmlspecialchars($veiculo['categoria'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($veiculo['nome_local'] ?? '-') ?></td>
                             <td>
-                                <a href="./editar.php?id=<?= $veiculo['id'] ?>" class="btn btn-sm btn-warning">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </a>
-                                <a href="./excluir.php?id=<?= $veiculo['id'] ?>" class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('Tem certeza que deseja excluir este veículo?')">
-                                    <i class="bi bi-trash"></i> Excluir
-                                </a>
+                                <?php if ($disponivel == 1): ?>
+                                    <span class="badge bg-success">Disponível</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">Indisponível</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a href="./editar.php?id=<?= $veiculo['id'] ?>" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <a href="./ativar.php?id=<?= $veiculo['id'] ?>&status=<?= $disponivel == 1 ? 0 : 1 ?>" 
+                                       class="btn btn-sm <?= $disponivel == 1 ? 'btn-secondary' : 'btn-info' ?>">
+                                        <i class="bi bi-power"></i> <?= $disponivel == 1 ? 'Desativar' : 'Ativar' ?>
+                                    </a>
+                                    <a href="./excluir.php?id=<?= $veiculo['id'] ?>" class="btn btn-sm btn-danger" 
+                                       onclick="return confirm('Tem certeza que deseja excluir este veículo?')">
+                                        <i class="bi bi-trash"></i> Excluir
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -98,6 +127,5 @@ require_once '../includes/header.php';
         </div>
     <?php endif; ?>
 </div>
-
 
 <?php require_once '../includes/footer.php'; ?>
