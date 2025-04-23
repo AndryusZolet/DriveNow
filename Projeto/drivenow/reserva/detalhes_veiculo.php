@@ -27,8 +27,8 @@ if (!$veiculo) {
     exit;
 }
 
-// Definir valores padrão para diária (você pode pegar esses valores do banco de dados se existirem)
-$diariaValor = 150.00;
+// Usar o preço diário do veículo
+$diariaValor = $veiculo['preco_diaria'];
 $taxaUso = 20.00;
 $taxaLimpeza = 30.00;
 
@@ -84,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && estaLogado()) {
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">
                         <?= htmlspecialchars($veiculo['veiculo_marca']) ?> <?= htmlspecialchars($veiculo['veiculo_modelo']) ?>
+                        <span class="float-end">R$ <?= number_format($veiculo['preco_diaria'], 2, ',', '.') ?>/dia</span>
                     </h4>
                 </div>
                 <div class="card-body">
@@ -94,6 +95,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && estaLogado()) {
                             </div>
                         </div>
                         <div class="col-md-8">
+                            <!-- Seção de Descrição do Veículo -->
+                            <div class="mb-4">
+                                <h5>Descrição do Veículo</h5>
+                                <div class="border p-3 rounded bg-light">
+                                    <?php if (!empty($veiculo['descricao'])): ?>
+                                        <?= nl2br(htmlspecialchars($veiculo['descricao'])) ?>
+                                    <?php else: ?>
+                                        <p class="text-muted">O proprietário não forneceu uma descrição para este veículo.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
                                     <strong>Proprietário:</strong> <?= htmlspecialchars($veiculo['nome_proprietario']) ?>
@@ -163,13 +176,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && estaLogado()) {
                                     <label for="observacoes" class="form-label">Observações</label>
                                     <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
                                 </div>
+                                <div class="alert alert-info">
+                                    <strong>Preço diário:</strong> R$ <?= number_format($veiculo['preco_diaria'], 2, ',', '.') ?>
+                                </div>
                                 <button type="submit" class="btn btn-success w-100">Solicitar Reserva</button>
                             </form>
                         <?php else: ?>
                             <div class="alert alert-warning">
                                 Você precisa estar logado para fazer uma reserva.
-                                <a href="login.php" class="alert-link">Faça login</a> ou 
-                                <a href="cadastro.php" class="alert-link">cadastre-se</a>.
+                                <a href="../login.php" class="alert-link">Faça login</a> ou 
+                                <a href="../cadastro.php" class="alert-link">cadastre-se</a>.
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>

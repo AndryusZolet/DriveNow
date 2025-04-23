@@ -38,7 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $dono) {
         'veiculo_acentos' => trim($_POST['veiculo_acentos']),
         'veiculo_tracao' => trim($_POST['veiculo_tracao']),
         'local_id' => !empty($_POST['local_id']) ? $_POST['local_id'] : null,
-        'categoria_veiculo_id' => !empty($_POST['categoria_veiculo_id']) ? $_POST['categoria_veiculo_id'] : null
+        'categoria_veiculo_id' => !empty($_POST['categoria_veiculo_id']) ? $_POST['categoria_veiculo_id'] : null,
+        'preco_diaria' => trim($_POST['preco_diaria']),
+        'descricao' => trim($_POST['descricao'] ?? '')
     ];
     
     // Validações
@@ -46,13 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $dono) {
         $erro = 'Todos os campos são obrigatórios.';
     } elseif (!is_numeric($dados['veiculo_ano']) || $dados['veiculo_ano'] < 1900 || $dados['veiculo_ano'] > date('Y') + 1) {
         $erro = 'Ano do veículo inválido.';
+    } elseif (!is_numeric($dados['preco_diaria']) || $dados['preco_diaria'] <= 0) {
+        $erro = 'O preço diário deve ser um valor numérico positivo.';
     } else {
         try { // precisa arrumar na DB a tabela veiculo.veiculo_placa e veiculo.marca e veiculo.modelo
             $stmt = $pdo->prepare("INSERT INTO veiculo 
-                                  (dono_id, veiculo_marca, veiculo_modelo, veiculo_ano, veiculo_placa, veiculo_km, veiculo_cambio,
-                                   veiculo_combustivel, veiculo_portas, veiculo_acentos, veiculo_tracao,
-                                   local_id, categoria_veiculo_id) 
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+(dono_id, veiculo_marca, veiculo_modelo, veiculo_ano, veiculo_placa, veiculo_km, veiculo_cambio,
+ veiculo_combustivel, veiculo_portas, veiculo_acentos, veiculo_tracao,
+ local_id, categoria_veiculo_id, preco_diaria, descricao) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
             $stmt->execute(array_values($dados));
             
             $sucesso = 'Veículo cadastrado com sucesso!';
@@ -200,6 +205,21 @@ require_once '../includes/header.php';
                                         <option value="<?= $local['id'] ?>"><?= htmlspecialchars($local['nome_local']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="preco_diaria" class="form-label">Preço Diário (R$)</label>
+                                    <input type="number" class="form-control" id="preco_diaria" name="preco_diaria" 
+                                           min="50" step="0.01" required>
+                                    <small class="text-muted">Valor por dia de aluguel</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="descricao" class="form-label">Descrição do Veículo</label>
+                                <textarea class="form-control" id="descricao" name="descricao" rows="4"
+                                          placeholder="Descreva detalhes importantes como equipamentos, estado de conservação, itens inclusos, etc."></textarea>
+                                <small class="text-muted">Esta descrição será exibida para os clientes interessados no veículo.</small>
                             </div>
                         </div>
                         

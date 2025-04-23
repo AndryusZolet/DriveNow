@@ -15,7 +15,7 @@ $id = $_GET['id'];
 $status = $_GET['status'];
 
 global $pdo;
-// primeiro verifique se o veículo pertence ao usuário logado
+// Primeiro verifique se o veículo pertence ao usuário logado
 $stmt = $pdo->prepare("SELECT v.id 
                       FROM veiculo v
                       JOIN dono d ON v.dono_id = d.id
@@ -30,21 +30,26 @@ if (!$veiculo) {
 }
 
 try {
+    // Verifique se a coluna existe
     $stmt = $pdo->query("SHOW COLUMNS FROM veiculo LIKE 'disponivel'");
     if ($stmt->rowCount() > 0) {
+        // Atualizar o status de disponibilidade
         $stmt = $pdo->prepare("UPDATE veiculo SET disponivel = ? WHERE id = ?");
         $stmt->execute([$status, $id]);
         
         header('Location: veiculos.php');
         exit;
     } else {
+        // Registrar erro ou redirecionar com mensagem
         error_log("Coluna 'disponivel' não encontrada na tabela veiculo");
         header('Location: veiculos.php?erro=1');
         exit;
     }
 } catch (PDOException $e) {
+    // Log do erro para depuração
     error_log("Erro ao atualizar disponibilidade do veículo: " . $e->getMessage());
     
+    // Redirecionar com mensagem de erro
     header('Location: veiculos.php?erro=1');
     exit;
 }

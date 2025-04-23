@@ -21,7 +21,6 @@ if (!$dono) {
     exit;
 }
 
-// Verificar se o veículo pertence ao dono
 if (!isset($_GET['id'])) {
     header('Location: veiculos.php');
     exit;
@@ -29,7 +28,7 @@ if (!isset($_GET['id'])) {
 
 $veiculoId = $_GET['id'];
 
-// Buscar veículo com informações completas
+// Buscar veículo
 $stmt = $pdo->prepare("SELECT v.*, c.categoria, l.nome_local 
                       FROM veiculo v
                       LEFT JOIN categoria_veiculo c ON v.categoria_veiculo_id = c.id
@@ -43,11 +42,9 @@ if (!$veiculo) {
     exit;
 }
 
-// Buscar categorias e locais disponíveis
 $categorias = $pdo->query("SELECT * FROM categoria_veiculo")->fetchAll();
 $locais = $pdo->query("SELECT * FROM local")->fetchAll();
 
-// Processar edição
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dados = [
         'veiculo_marca' => trim($_POST['veiculo_marca']),
@@ -62,22 +59,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'veiculo_tracao' => trim($_POST['veiculo_tracao']),
         'local_id' => !empty($_POST['local_id']) ? $_POST['local_id'] : null,
         'categoria_veiculo_id' => !empty($_POST['categoria_veiculo_id']) ? $_POST['categoria_veiculo_id'] : null,
+        'veiculo_preco_diaria' => trim($_POST['veiculo_preco_diaria']),
+        'descricao' => trim($_POST['descricao'] ?? ''),
         'id' => $veiculoId,
         'dono_id' => $dono['id']
     ];
     
     // Validações
-    if (empty($dados['veiculo_marca']) || empty($dados['veiculo_modelo']) || empty($dados['veiculo_placa']) || empty($dados['veiculo_ano']) || empty($dados['veiculo_km']) || empty($dados['veiculo_cambio']) || empty($dados['veiculo_combustivel']) || empty($dados['veiculo_portas']) || empty($dados['veiculo_acentos']) || empty($dados['veiculo_tracao'])) {
+    if (empty($dados['veiculo_marca']) || empty($dados['veiculo_modelo']) || empty($dados['veiculo_placa']) || 
+        empty($dados['veiculo_ano']) || empty($dados['veiculo_km']) || empty($dados['veiculo_cambio']) || 
+        empty($dados['veiculo_combustivel']) || empty($dados['veiculo_portas']) || 
+        empty($dados['veiculo_acentos']) || empty($dados['veiculo_tracao'])) {
         $erro = 'Todos os campos são obrigatórios.';
     } elseif (!is_numeric($dados['veiculo_ano']) || $dados['veiculo_ano'] < 1900 || $dados['veiculo_ano'] > date('Y') + 1) {
         $erro = 'Ano do veículo inválido.';
+    } elseif (!is_numeric($dados['veiculo_preco_diaria']) || $dados['veiculo_preco_diaria'] <= 0) {
+        $erro = 'O preço diário deve ser um valor numérico positivo.';
     } else {
         try {
             $stmt = $pdo->prepare("UPDATE veiculo SET 
-                                  veiculo_marca = ?, veiculo_modelo = ?, veiculo_placa = ?, veiculo_ano = ?, veiculo_km = ?, veiculo_cambio = ?,
-                                  veiculo_combustivel = ?, veiculo_portas = ?, veiculo_acentos = ?, veiculo_tracao = ?,
-                                  local_id = ?, categoria_veiculo_id = ?
+                                  veiculo_marca = ?, 
+                                  veiculo_modelo = ?, 
+                                  veiculo_placa = ?, 
+                                  veiculo_ano = ?, 
+                                  veiculo_km = ?, 
+                                  veiculo_cambio = ?,
+                                  veiculo_combustivel = ?, 
+                                  veiculo_portas = ?, 
+                                  veiculo_acentos = ?, 
+                                  veiculo_tracao = ?,
+                                  local_id = ?, 
+                                  categoria_veiculo_id = ?, 
+                                  preco_diaria = ?, 
+                                  descricao = ?
                                   WHERE id = ? AND dono_id = ?");
+            
             $stmt->execute([
                 $dados['veiculo_marca'],
                 $dados['veiculo_modelo'],
@@ -91,12 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dados['veiculo_tracao'],
                 $dados['local_id'],
                 $dados['categoria_veiculo_id'],
+                $dados['veiculo_preco_diaria'],
+                $dados['descricao'],
                 $dados['id'],
                 $dados['dono_id']
             ]);
             
             $sucesso = 'Veículo atualizado com sucesso!';
-            // Atualizar dados locais
             $veiculo = array_merge($veiculo, $dados);
         } catch (PDOException $e) {
             $erro = 'Erro ao atualizar veículo: ' . $e->getMessage();
@@ -253,6 +270,23 @@ require_once '../includes/header.php';
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="veiculo_preco_diaria" class="form-label">Preço Diário (R$)</label>
+                                    <input type="number" class="form-control" id="veiculo_preco_diaria" name="veiculo_preco_diaria" 
+                                           value="<?= htmlspecialchars($veiculo['preco_diaria'] ?? '150.00') ?>" 
+                                           min="50" step="0.01" required>
+                                    <small class="text-muted">Valor por dia de aluguel</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="descricao" class="form-label">Descrição do Veículo</label>
+                                    <textarea class="form-control" id="descricao" name="descricao" rows="4"
+                                              placeholder="Descreva detalhes do veículo (estado de conservação, equipamentos, etc.)"><?= htmlspecialchars($veiculo['descricao'] ?? '') ?></textarea>
+                                    <small class="text-muted">Esta descrição será exibida para os clientes na página de detalhes do veículo.</small>
+                                </div>
                             </div>
                         </div>
                         

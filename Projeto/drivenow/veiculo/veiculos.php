@@ -14,20 +14,20 @@ $stmt = $pdo->prepare("SELECT id FROM dono WHERE conta_usuario_id = ?");
 $stmt->execute([$usuario['id']]);
 $dono = $stmt->fetch();
 
-// verificar se a coluna disponivel existe na tabela veiculo
+// Verificar se a coluna 'disponivel' existe na tabela veiculo
 $columnExists = false;
 try {
     $stmt = $pdo->query("SHOW COLUMNS FROM veiculo LIKE 'disponivel'");
     $columnExists = ($stmt->rowCount() > 0);
 } catch (PDOException $e) {
-    // se houver erro considerar que a coluna não existe
+    // Se houver erro, considerar que a coluna não existe
     $columnExists = false;
 }
 
 if (!$dono) {
     $veiculos = [];
 } else {
-    // buscar veículos do dono com informações de categoria e local
+    // Buscar veículos do dono com informações de categoria e local
     $sql = "SELECT v.*, c.categoria, l.nome_local" . 
           ($columnExists ? ", v.disponivel" : "") . 
           " FROM veiculo v
@@ -74,17 +74,19 @@ require_once '../includes/header.php';
                         <th>Placa</th>
                         <th>Ano</th>
                         <th>KM</th>
-                        <th>Cambio</th>
-                        <th>Combustivel</th>
+                        <th>Câmbio</th>
+                        <th>Combustível</th>
                         <th>Tração</th>
                         <th>Categoria</th>
                         <th>Localização</th>
+                        <th>Diário</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($veiculos as $veiculo): 
+                        // Definir disponivel como 1 (disponível) por padrão se não existir
                         $disponivel = $veiculo['disponivel'] ?? 1;
                     ?>
                         <tr>
@@ -98,6 +100,7 @@ require_once '../includes/header.php';
                             <td><?= htmlspecialchars($veiculo['veiculo_tracao']) ?></td>
                             <td><?= htmlspecialchars($veiculo['categoria'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($veiculo['nome_local'] ?? '-') ?></td>
+                            <td>R$ <?= number_format($veiculo['preco_diaria'], 2, ',', '.') ?></td>
                             <td>
                                 <?php if ($disponivel == 1): ?>
                                     <span class="badge bg-success">Disponível</span>

@@ -84,9 +84,12 @@ $veiculos = $stmt->fetchAll();
                             </ul>
                         </div>
                         <div class="card-footer bg-white">
-                            <a href="detalhes_veiculo.php?id=<?= $veiculo['id'] ?>" class="btn btn-primary w-100">
-                                Ver Detalhes e Reservar
-                            </a>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">R$ <?= number_format($veiculo['preco_diaria'], 2, ',', '.') ?>/dia</span>
+                                <a href="detalhes_veiculo.php?id=<?= $veiculo['id'] ?>" class="btn btn-primary">
+                                    Ver Detalhes
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
