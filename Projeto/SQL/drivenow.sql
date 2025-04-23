@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19/04/2025 às 05:38
+-- Tempo de geração: 23/04/2025 às 22:04
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -152,7 +152,8 @@ CREATE TABLE `conta_usuario` (
 
 INSERT INTO `conta_usuario` (`id`, `primeiro_nome`, `segundo_nome`, `telefone`, `e_mail`, `senha`, `data_de_entrada`) VALUES
 (1, 'Andryus', 'Zolet', NULL, 'zolet@gmail.com', '$2y$10$/TTRskgWu5PwHZpIfp11p.M968XE7pojt54VqPizrjkt9dP34rszi', '2025-04-18'),
-(2, 'Teste', 'Testado', NULL, 'teste@gmail.com', '$2y$10$Ov934knn5N/GAUeTRRjL7OS1Ej4N8rrehNOQHT1AORkrtXM0/Y20W', '2025-04-18');
+(2, 'Teste', 'Testado', NULL, 'teste@gmail.com', '$2y$10$Ov934knn5N/GAUeTRRjL7OS1Ej4N8rrehNOQHT1AORkrtXM0/Y20W', '2025-04-18'),
+(3, 'Video', 'Teste', NULL, 'Video@gmail.com', '$2y$10$OB2cGJysp8p.M59In4HykurAtGPiii9d7LG3Y4XQrFW0F1BHYY3EC', '2025-04-23');
 
 -- --------------------------------------------------------
 
@@ -170,7 +171,8 @@ CREATE TABLE `dono` (
 --
 
 INSERT INTO `dono` (`id`, `conta_usuario_id`) VALUES
-(1, 1);
+(1, 1),
+(2, 3);
 
 -- --------------------------------------------------------
 
@@ -255,6 +257,13 @@ CREATE TABLE `reserva` (
   `status` varchar(20) DEFAULT 'pendente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `reserva`
+--
+
+INSERT INTO `reserva` (`id`, `veiculo_id`, `conta_usuario_id`, `reserva_data`, `devolucao_data`, `diaria_valor`, `taxas_de_uso`, `taxas_de_limpeza`, `valor_total`, `status`) VALUES
+(5, 3, 3, '2025-04-24', '2025-04-25', 300.00, 20.00, 30.00, 350.00, 'confirmada');
+
 -- --------------------------------------------------------
 
 --
@@ -290,15 +299,20 @@ CREATE TABLE `veiculo` (
   `veiculo_portas` int(11) DEFAULT NULL,
   `veiculo_acentos` int(11) DEFAULT NULL,
   `veiculo_tracao` varchar(50) DEFAULT NULL,
-  `disponivel` tinyint(1) DEFAULT 1 COMMENT '0=Indisponível, 1=Disponível'
+  `disponivel` tinyint(1) DEFAULT 1 COMMENT '0=Indisponível, 1=Disponível',
+  `preco_diaria` decimal(10,2) NOT NULL DEFAULT 150.00,
+  `descricao` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `veiculo`
 --
 
-INSERT INTO `veiculo` (`id`, `local_id`, `categoria_veiculo_id`, `dono_id`, `veiculo_marca`, `veiculo_modelo`, `veiculo_ano`, `veiculo_km`, `veiculo_placa`, `veiculo_cambio`, `veiculo_combustivel`, `veiculo_portas`, `veiculo_acentos`, `veiculo_tracao`, `disponivel`) VALUES
-(2, NULL, 2, 1, 'Honda', 'Civic Type R', 2025, 257, 'ABC-1234', 'Automático', 'Gasolina', 4, 5, 'Dianteira', 1);
+INSERT INTO `veiculo` (`id`, `local_id`, `categoria_veiculo_id`, `dono_id`, `veiculo_marca`, `veiculo_modelo`, `veiculo_ano`, `veiculo_km`, `veiculo_placa`, `veiculo_cambio`, `veiculo_combustivel`, `veiculo_portas`, `veiculo_acentos`, `veiculo_tracao`, `disponivel`, `preco_diaria`, `descricao`) VALUES
+(2, NULL, 2, 1, 'Honda', 'Civic Type R', 2025, 257, 'ABC-1234', 'Automático', 'Gasolina', 4, 5, 'Dianteira', 1, 460.00, NULL),
+(3, NULL, 4, 1, 'Ford', 'Focus', 2020, 40940, 'CAP-4321', 'Manual', 'Gasolina', 4, 5, 'AWD', 1, 300.00, 'teste'),
+(4, NULL, 2, 1, 'Volkswagen', 'Jetta', 2025, 5400, 'FGR-9256', 'Manual', 'Gasolina', 4, 5, 'Dianteira', 1, 5050.00, 'teste'),
+(5, NULL, 2, 2, 'Nissan', 'Versa', 2018, 14000, 'RTM-1111', 'CVT', 'Gasolina', 4, 5, 'Dianteira', 0, 600.00, 'Teste');
 
 --
 -- Índices para tabelas despejadas
@@ -422,13 +436,13 @@ ALTER TABLE `cidade`
 -- AUTO_INCREMENT de tabela `conta_usuario`
 --
 ALTER TABLE `conta_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `dono`
 --
 ALTER TABLE `dono`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `estado`
@@ -452,7 +466,7 @@ ALTER TABLE `local`
 -- AUTO_INCREMENT de tabela `reserva`
 --
 ALTER TABLE `reserva`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `review_usuario`
@@ -464,7 +478,7 @@ ALTER TABLE `review_usuario`
 -- AUTO_INCREMENT de tabela `veiculo`
 --
 ALTER TABLE `veiculo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restrições para tabelas despejadas
