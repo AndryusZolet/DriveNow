@@ -15,11 +15,33 @@ $stmt->execute([$usuario['id']]);
 $dono = $stmt->fetch();
 
 $totalVeiculos = 0;
+$totalReservas = 0;
+$reservasAtivas = 0;
+
 if ($dono) {
+    // Contar veículos do dono
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM veiculo WHERE dono_id = ?");
     $stmt->execute([$dono['id']]);
     $totalVeiculos = $stmt->fetchColumn();
+    
+    // Contar reservas dos veículos do dono
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM reserva r 
+                          JOIN veiculo v ON r.veiculo_id = v.id 
+                          WHERE v.dono_id = ?");
+    $stmt->execute([$dono['id']]);
+    $totalReservas = $stmt->fetchColumn();
 }
+
+// Contar reservas do usuário (tanto locatário quanto proprietário)
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM reserva WHERE conta_usuario_id = ?");
+$stmt->execute([$usuario['id']]);
+$minhasReservas = $stmt->fetchColumn();
+
+// Contar reservas ativas do usuário (com data futura)
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM reserva 
+                      WHERE conta_usuario_id = ? AND reserva_data >= CURDATE()");
+$stmt->execute([$usuario['id']]);
+$reservasAtivas = $stmt->fetchColumn();
 
 require_once 'includes/header.php';
 ?>
@@ -29,15 +51,15 @@ require_once 'includes/header.php';
     
     <div class="card mt-4">
         <div class="card-body">
-            <?php if ($erro || isset($_GET['erro'])): ?>
-                <div class="alert alert-danger"><
-                    <?= htmlspecialchars($erro ?: $_GET['erro']) ?>
+            <?php if (isset($_GET['erro']) && $_GET['erro']): ?>
+                <div class="alert alert-danger">
+                    <?= htmlspecialchars(urldecode($_GET['erro'])) ?>
                 </div>
             <?php endif; ?>
             
-            <?php if ($sucesso || isset($_GET['sucesso'])): ?>
+            <?php if (isset($_GET['sucesso']) && $_GET['sucesso']): ?>
                 <div class="alert alert-success">
-                    <?= htmlspecialchars($sucesso ?: $_GET['sucesso']) ?>
+                    <?= htmlspecialchars(urldecode($_GET['sucesso'])) ?>
                 </div>
             <?php endif; ?>
             
@@ -49,7 +71,9 @@ require_once 'includes/header.php';
                 <?= isset($usuario['data_de_entrada']) && $usuario['data_de_entrada'] ? date('d/m/Y', strtotime($usuario['data_de_entrada'])) : 'Data não disponível' ?>
                 <?php if ($dono): ?>
                     <br><strong>Veículos cadastrados:</strong> <?= $totalVeiculos ?>
+                    <br><strong>Reservas recebidas:</strong> <?= $totalReservas ?>
                 <?php endif; ?>
+                <br><strong>Suas reservas ativas:</strong> <?= $reservasAtivas ?>
             </p>
             <a href="./perfil/editar.php" class="btn btn-primary">Editar Perfil</a>
             <a href="logout.php" class="btn btn-danger">Sair</a>
@@ -81,35 +105,38 @@ require_once 'includes/header.php';
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Suas Reservas</h5>
-                    <p class="card-text">Veja e gerencie suas reservas de veículos.</p>
-                    <!-- <a> href="minhas_reservas.php" </a> REMOVIDO DE BAIXO -->
-                    <a onclick="return alert('Função Desativada.');" class="btn btn-primary">Ver Reservas</a>
+                    <p class="card-text">
+                        Você tem <?= $minhasReservas ?> reserva(s) no total, 
+                        sendo <?= $reservasAtivas ?> ativa(s).
+                    </p>
+                    <a href="reserva/minhas_reservas.php" class="btn btn-primary">Ver Reservas</a>
+                    <?php if ($dono): ?>
+                        <a href="reserva/reservas_recebidas.php" class="btn btn-secondary ms-2">Reservas Recebidas</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
     
     <div class="row mt-4">
-        <!-- Card de Favoritos -->
+        <!-- Card de Busca de Veículos -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Favoritos</h5>
-                    <p class="card-text">Veículos que você marcou como favorito.</p>
-                    <!-- <a> href="favoritos.php" </a> REMOVIDO DE BAIXO -->
-                    <a onclick="return alert('Função Desativada.');" class="btn btn-primary">Ver Favoritos</a>
+                    <h5 class="card-title">Alugar Veículo</h5>
+                    <p class="card-text">Encontre o veículo perfeito para sua próxima viagem.</p>
+                    <a href="reserva/listagem_veiculos.php" class="btn btn-primary">Buscar Veículos</a>
                 </div>
             </div>
         </div>
         
-        <!-- Card extra pode ser usado para outras funcionalidades -->
+        <!-- Card de Histórico -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Configurações</h5>
-                    <p class="card-text">Ajuste suas preferências e configurações de conta.</p>
-                    <!-- <a> href="configuracoes.php" </a> REMOVIDO DE BAIXO -->
-                    <a onclick="return alert('Função Desativada.');" class="btn btn-primary" aria-disabled="true">Acessar Configurações</a>
+                    <h5 class="card-title">Histórico</h5>
+                    <p class="card-text">Veja seu histórico de aluguéis e reservas.</p>
+                    <a href="reserva/historico_reservas.php" class="btn btn-primary">Ver Histórico</a>
                 </div>
             </div>
         </div>

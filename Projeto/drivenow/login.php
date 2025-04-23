@@ -1,5 +1,4 @@
 <?php
-session_start(); // Adicione isso como primeira linha
 require_once 'includes/auth.php';
 
 // Se o usuário já estiver logado, redireciona para o dashboard

@@ -1,5 +1,4 @@
 <?php
-session_start(); // Adicione isso como primeira linha
 require_once 'includes/auth.php';
 
 $erro = '';
