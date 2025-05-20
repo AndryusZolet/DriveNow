@@ -1,10 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 
-if (!estaLogado()) {
-    header('Location: ../login.php');
-    exit;
-}
+verificarAutenticacao();
 
 $usuario = getUsuario();
 
@@ -20,15 +17,13 @@ $stmt = $pdo->prepare("SELECT r.*, v.veiculo_marca, v.veiculo_modelo, v.veiculo_
                       ORDER BY r.reserva_data DESC");
 $stmt->execute([$usuario['id']]);
 $reservas = $stmt->fetchAll();
-
-require_once '../includes/header.php';
 ?>
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Histórico de Reservas</h2>
         <div>
-            <a href="../dashboard.php" class="btn btn-secondary">Voltar ao Dashboard</a>
+            <a href="../vboard.php" class="btn btn-secondary">Voltar ao Dashboard</a>
             <a href="listagem_veiculos.php" class="btn btn-primary ms-2">Nova Reserva</a>
         </div>
     </div>
@@ -177,5 +172,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-<?php require_once '../includes/footer.php'; ?>

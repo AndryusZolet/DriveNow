@@ -1,6 +1,5 @@
 <?php
 require_once '../includes/auth.php';
-require_once '../includes/header.php';
 
 if (!isset($_GET['id'])) {
     header('Location: listagem_veiculos.php');
@@ -76,7 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && estaLogado()) {
     }
 }
 ?>
-
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8">
@@ -160,27 +158,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && estaLogado()) {
                     
                     <?php if ($sucesso): ?>
                         <div class="alert alert-success"><?= htmlspecialchars($sucesso) ?></div>
-                        <a href="../dashboard.php" class="btn btn-primary w-100">Voltar ao Dashboard</a>
+                        <a href="../vboard.php" class="btn btn-primary w-100">Voltar ao Dashboard</a>
                     <?php else: ?>
                         <?php if (estaLogado()): ?>
-                            <form method="POST">
-                                <div class="mb-3">
-                                    <label for="reserva_data" class="form-label">Data de Reserva</label>
-                                    <input type="date" class="form-control" id="reserva_data" name="reserva_data" required>
+                            <?php if (usuarioPodeReservar()): ?>
+                                <form method="POST">
+                                    <div class="mb-3">
+                                        <label for="reserva_data" class="form-label">Data de Reserva</label>
+                                        <input type="date" class="form-control" id="reserva_data" name="reserva_data" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="devolucao_data" class="form-label">Data de Devolução</label>
+                                        <input type="date" class="form-control" id="devolucao_data" name="devolucao_data" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="observacoes" class="form-label">Observações</label>
+                                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
+                                    </div>
+                                    <div class="alert alert-info">
+                                        <strong>Preço diário:</strong> R$ <?= number_format($veiculo['preco_diaria'], 2, ',', '.') ?>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">Solicitar Reserva</button>
+                                </form>
+                            <?php else: ?>
+                                <div class="alert alert-warning">
+                                    Você não pode fazer reservas neste veículo. 
+                                    <a href="../vboard.php" class="alert-link">Voltar ao Dashboard</a>.
                                 </div>
-                                <div class="mb-3">
-                                    <label for="devolucao_data" class="form-label">Data de Devolução</label>
-                                    <input type="date" class="form-control" id="devolucao_data" name="devolucao_data" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="observacoes" class="form-label">Observações</label>
-                                    <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
-                                </div>
-                                <div class="alert alert-info">
-                                    <strong>Preço diário:</strong> R$ <?= number_format($veiculo['preco_diaria'], 2, ',', '.') ?>
-                                </div>
-                                <button type="submit" class="btn btn-success w-100">Solicitar Reserva</button>
-                            </form>
+                            <?php endif; ?>
                         <?php else: ?>
                             <div class="alert alert-warning">
                                 Você precisa estar logado para fazer uma reserva.
@@ -206,5 +211,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-<?php require_once '../includes/footer.php'; ?>

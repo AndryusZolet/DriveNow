@@ -1,10 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 
-if (!estaLogado()) {
-    header('Location: ../login.php');
-    exit;
-}
+verificarAutenticacao();
 
 $usuario = getUsuario();
 

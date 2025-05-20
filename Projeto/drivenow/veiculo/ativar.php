@@ -1,10 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 
-if (!estaLogado()) {
-    header('Location: ../login.php');
-    exit;
-}
+verificarAutenticacao();
 
 if (!isset($_GET['id']) || !isset($_GET['status'])) {
     header('Location: veiculos.php');

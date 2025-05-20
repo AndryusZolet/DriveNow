@@ -1,6 +1,62 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../config/db.php';
+
+/**
+ * Verifica se esta logado, caso contrario redireciona para login.php
+ * */
+function verificarAutenticacao() {
+    if (!estaLogado()) {
+        header('Location: ../login.php');
+        exit();
+    }
+}
+
+function usuarioPodeReservar() {
+    $usuario = getUsuario();
+    
+    if ($usuario['cadastro_completo'] == 1 && $usuario['status_docs'] == 'aprovado') {
+        return true;
+    }
+}
+
+/**
+ * Verifica se o usuário atual é um administrador
+ * 
+ * Retorna true se o usuário for administrador, false caso contrário
+ */
+function isAdmin() {
+    // Verificar se o usuário está logado
+    if (!estaLogado()) {
+        return false;
+    }
+    
+    // Verificar se o usuário tem a flag de administrador
+    $usuario = getUsuario();
+    
+    // Se o usuário tiver a flag is_admin = 1, então é administrador
+    return isset($usuario['is_admin']) && $usuario['is_admin'] == 1;
+}
+
+/**
+ * Verifica se o usuário é administrador e redireciona caso não seja
+ */
+function verificarAdmin() {
+    if (!isAdmin()) {
+        // Definir mensagem de erro
+        // $_SESSION['notification'] = [
+        //     'type' => 'error',
+        //     'message' => 'Acesso negado! Você não tem permissões de administrador.'
+        // ];
+        
+        // Redirecionar para a página inicial
+        header('Location: ../vboard.php');
+        exit;
+    }
+}
 
 /**
  * Registra um novo usuário
@@ -36,7 +92,7 @@ function registrarUsuario($primeiroNome, $segundoNome, $email, $senha) {
 function fazerLogin($email, $senha) {
     global $pdo;
     
-    $stmt = $pdo->prepare("SELECT id, primeiro_nome, segundo_nome, e_mail, senha, data_de_entrada FROM conta_usuario WHERE e_mail = ?");
+    $stmt = $pdo->prepare("SELECT * FROM conta_usuario WHERE e_mail = ?");
     $stmt->execute([$email]);
     $usuario = $stmt->fetch();
     
