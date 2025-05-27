@@ -29,15 +29,6 @@ CREATE TABLE IF NOT EXISTS `atributo` (
 
 -- Copiando dados para a tabela drivenow.atributo: ~0 rows (aproximadamente)
 
--- Copiando estrutura para tabela drivenow.atributos_veiculos
-CREATE TABLE IF NOT EXISTS `atributos_veiculos` (
-  `veiculo_id` int(11) NOT NULL,
-  `atributo_id` int(11) NOT NULL,
-  PRIMARY KEY (`veiculo_id`,`atributo_id`),
-  KEY `atributo_id` (`atributo_id`),
-  CONSTRAINT `atributos_veiculos_ibfk_1` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculo` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `atributos_veiculos_ibfk_2` FOREIGN KEY (`atributo_id`) REFERENCES `atributo` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Copiando dados para a tabela drivenow.atributos_veiculos: ~0 rows (aproximadamente)
 
@@ -59,6 +50,44 @@ INSERT INTO `categoria_veiculo` (`id`, `categoria`) VALUES
 	(7, 'Perua'),
 	(8, 'Minivan');
 
+-- Copiando estrutura para tabela drivenow.estado
+CREATE TABLE IF NOT EXISTS `estado` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `estado_nome` varchar(100) NOT NULL,
+  `sigla` char(2) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Copiando dados para a tabela drivenow.estado: ~27 rows (aproximadamente)
+INSERT INTO `estado` (`id`, `estado_nome`, `sigla`) VALUES
+	(1, 'Acre', 'AC'),
+	(2, 'Alagoas', 'AL'),
+	(3, 'Amapá', 'AP'),
+	(4, 'Amazonas', 'AM'),
+	(5, 'Bahia', 'BA'),
+	(6, 'Ceará', 'CE'),
+	(7, 'Distrito Federal', 'DF'),
+	(8, 'Espírito Santo', 'ES'),
+	(9, 'Goiás', 'GO'),
+	(10, 'Maranhão', 'MA'),
+	(11, 'Mato Grosso', 'MT'),
+	(12, 'Mato Grosso do Sul', 'MS'),
+	(13, 'Minas Gerais', 'MG'),
+	(14, 'Pará', 'PA'),
+	(15, 'Paraíba', 'PB'),
+	(16, 'Paraná', 'PR'),
+	(17, 'Pernambuco', 'PE'),
+	(18, 'Piauí', 'PI'),
+	(19, 'Rio de Janeiro', 'RJ'),
+	(20, 'Rio Grande do Norte', 'RN'),
+	(21, 'Rio Grande do Sul', 'RS'),
+	(22, 'Rondônia', 'RO'),
+	(23, 'Roraima', 'RR'),
+	(24, 'Santa Catarina', 'SC'),
+	(25, 'São Paulo', 'SP'),
+	(26, 'Sergipe', 'SE'),
+	(27, 'Tocantins', 'TO');
+
 -- Copiando estrutura para tabela drivenow.cidade
 CREATE TABLE IF NOT EXISTS `cidade` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -70,69 +99,19 @@ CREATE TABLE IF NOT EXISTS `cidade` (
 ) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Copiando dados para a tabela drivenow.cidade: ~62 rows (aproximadamente)
-INSERT INTO `cidade` (`id`, `estado_id`, `cidade_nome`) VALUES
-	(1, 1, 'Rio Branco'),
-	(2, 1, 'Cruzeiro do Sul'),
-	(3, 2, 'Maceió'),
-	(4, 2, 'Arapiraca'),
-	(5, 3, 'Macapá'),
-	(6, 3, 'Santana'),
-	(7, 4, 'Manaus'),
-	(8, 4, 'Parintins'),
-	(9, 5, 'Salvador'),
-	(10, 5, 'Feira de Santana'),
-	(11, 5, 'Porto Seguro'),
-	(12, 6, 'Fortaleza'),
-	(13, 6, 'Juazeiro do Norte'),
-	(14, 7, 'Brasília'),
-	(15, 8, 'Vitória'),
-	(16, 8, 'Vila Velha'),
-	(17, 9, 'Goiânia'),
-	(18, 9, 'Anápolis'),
-	(19, 10, 'São Luís'),
-	(20, 10, 'Imperatriz'),
-	(21, 11, 'Cuiabá'),
-	(22, 11, 'Várzea Grande'),
-	(23, 12, 'Campo Grande'),
-	(24, 12, 'Dourados'),
-	(25, 13, 'Belo Horizonte'),
-	(26, 13, 'Uberlândia'),
-	(27, 13, 'Ouro Preto'),
-	(28, 14, 'Belém'),
-	(29, 14, 'Santarém'),
-	(30, 15, 'João Pessoa'),
-	(31, 15, 'Campina Grande'),
-	(32, 16, 'Curitiba'),
-	(33, 16, 'Londrina'),
-	(34, 16, 'Foz do Iguaçu'),
-	(35, 16, 'Maringá'),
-	(36, 17, 'Recife'),
-	(37, 17, 'Olinda'),
-	(38, 18, 'Teresina'),
-	(39, 18, 'Parnaíba'),
-	(40, 19, 'Rio de Janeiro'),
-	(41, 19, 'Niterói'),
-	(42, 19, 'Petrópolis'),
-	(43, 20, 'Natal'),
-	(44, 20, 'Mossoró'),
-	(45, 21, 'Porto Alegre'),
-	(46, 21, 'Gramado'),
-	(47, 21, 'Caxias do Sul'),
-	(48, 22, 'Porto Velho'),
-	(49, 22, 'Ji-Paraná'),
-	(50, 23, 'Boa Vista'),
-	(51, 23, 'Caracaraí'),
-	(52, 24, 'Florianópolis'),
-	(53, 24, 'Joinville'),
-	(54, 24, 'Balneário Camboriú'),
-	(55, 25, 'São Paulo'),
-	(56, 25, 'Campinas'),
-	(57, 25, 'Santos'),
-	(58, 25, 'Ribeirão Preto'),
-	(59, 26, 'Aracaju'),
-	(60, 26, 'Lagarto'),
-	(61, 27, 'Palmas'),
-	(62, 27, 'Araguaína');
+INSERT INTO `cidade` (id, estado_id, cidade_nome) VALUES
+  (7, 4, 'Manaus'),
+  (9, 5, 'Salvador'),
+  (12, 6, 'Fortaleza'),
+  (14, 7, 'Brasília'),
+  (25, 13, 'Belo Horizonte'),
+  (32, 16, 'Curitiba'),
+  (34, 16, 'Foz do Iguaçu'),
+  (36, 17, 'Recife'),
+  (40, 19, 'Rio de Janeiro'),
+  (45, 21, 'Porto Alegre'),
+  (52, 24, 'Florianópolis'),
+  (55, 25, 'São Paulo');
 
 -- Copiando estrutura para tabela drivenow.conta_usuario
 CREATE TABLE IF NOT EXISTS `conta_usuario` (
@@ -174,44 +153,6 @@ CREATE TABLE IF NOT EXISTS `dono` (
 -- Copiando dados para a tabela drivenow.dono: ~1 rows (aproximadamente)
 INSERT INTO `dono` (`id`, `conta_usuario_id`) VALUES
 	(1, 4);
-
--- Copiando estrutura para tabela drivenow.estado
-CREATE TABLE IF NOT EXISTS `estado` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `estado_nome` varchar(100) NOT NULL,
-  `sigla` char(2) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Copiando dados para a tabela drivenow.estado: ~27 rows (aproximadamente)
-INSERT INTO `estado` (`id`, `estado_nome`, `sigla`) VALUES
-	(1, 'Acre', 'AC'),
-	(2, 'Alagoas', 'AL'),
-	(3, 'Amapá', 'AP'),
-	(4, 'Amazonas', 'AM'),
-	(5, 'Bahia', 'BA'),
-	(6, 'Ceará', 'CE'),
-	(7, 'Distrito Federal', 'DF'),
-	(8, 'Espírito Santo', 'ES'),
-	(9, 'Goiás', 'GO'),
-	(10, 'Maranhão', 'MA'),
-	(11, 'Mato Grosso', 'MT'),
-	(12, 'Mato Grosso do Sul', 'MS'),
-	(13, 'Minas Gerais', 'MG'),
-	(14, 'Pará', 'PA'),
-	(15, 'Paraíba', 'PB'),
-	(16, 'Paraná', 'PR'),
-	(17, 'Pernambuco', 'PE'),
-	(18, 'Piauí', 'PI'),
-	(19, 'Rio de Janeiro', 'RJ'),
-	(20, 'Rio Grande do Norte', 'RN'),
-	(21, 'Rio Grande do Sul', 'RS'),
-	(22, 'Rondônia', 'RO'),
-	(23, 'Roraima', 'RR'),
-	(24, 'Santa Catarina', 'SC'),
-	(25, 'São Paulo', 'SP'),
-	(26, 'Sergipe', 'SE'),
-	(27, 'Tocantins', 'TO');
 
 -- Copiando estrutura para tabela drivenow.favoritos
 CREATE TABLE IF NOT EXISTS `favoritos` (
@@ -289,7 +230,7 @@ INSERT INTO `local` (`id`, `cidade_id`, `nome_local`, `endereco`, `complemento`,
 	(37, 45, 'Parque Farroupilha (Redenção)', 'Av. João Pessoa', 'Farroupilha', '90040-000'),
 	(38, 45, 'Casa de Cultura Mario Quintana', 'R. dos Andradas, 736', 'Centro Histórico', '90020-004'),
 	(39, 45, 'Aeroporto Salgado Filho', 'Av. Severo Dullius, 90010', 'São João', '90200-310'),
-	(40, 45, 'Shopping Iguatemi', 'Av. João Wallig, 1800', 'Passo d\'Areia', '91340-000'),
+	(40, 45, 'Shopping Iguatemi', 'Av. João Wallig, 1800', 'Passo dAreia', '91340-000'),
 	(41, 34, 'Cataratas do Iguaçu', 'Rodovia das Cataratas, km 18', 'Parque Nacional do Iguaçu', '85855-750'),
 	(42, 34, 'Usina Hidrelétrica de Itaipu', 'Av. Tancredo Neves, 6731', 'Jardim Itaipu', '85856-970'),
 	(43, 34, 'Marco das Três Fronteiras', 'Av. General Meira', 'Jardim Jupira', '85853-110'),
@@ -390,11 +331,138 @@ CREATE TABLE IF NOT EXISTS `veiculo` (
   KEY `categoria_veiculo_id` (`categoria_veiculo_id`),
   KEY `dono_id` (`dono_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- Copiando estrutura para tabela drivenow.atributos_veiculos
+CREATE TABLE IF NOT EXISTS `atributos_veiculos` (
+  `veiculo_id` int(11) NOT NULL,
+  `atributo_id` int(11) NOT NULL,
+  PRIMARY KEY (`veiculo_id`,`atributo_id`),
+  KEY `atributo_id` (`atributo_id`),
+  CONSTRAINT `atributos_veiculos_ibfk_1` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculo` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `atributos_veiculos_ibfk_2` FOREIGN KEY (`atributo_id`) REFERENCES `atributo` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Copiando dados para a tabela drivenow.veiculo: ~2 rows (aproximadamente)
 INSERT INTO `veiculo` (`id`, `local_id`, `categoria_veiculo_id`, `dono_id`, `veiculo_marca`, `veiculo_modelo`, `veiculo_ano`, `veiculo_km`, `veiculo_placa`, `veiculo_cambio`, `veiculo_combustivel`, `veiculo_portas`, `veiculo_acentos`, `veiculo_tracao`, `disponivel`, `preco_diaria`, `descricao`) VALUES
 	(6, 13, 2, 1, 'Chevrolet', 'Onix Plus', 2022, 2000, 'ABD2G62', 'Automático', 'Gasolina', 4, 5, 'Dianteira', 1, 350.00, 'Otimo para viagem, veiculo todo revisado!'),
 	(7, 44, 1, 1, 'Fiat', 'Uno', 1998, 158900, 'ABC1234', 'Manual', 'Gasolina', 2, 4, 'Dianteira', 0, 50.00, 'Veiculo quase morrendo mas ainda funciona e esta barato para alugar!');
+
+-- Tabela para armazenar avaliações de veículos
+CREATE TABLE IF NOT EXISTS `avaliacao_veiculo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reserva_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `veiculo_id` int(11) NOT NULL,
+  `nota` int(1) NOT NULL CHECK (`nota` between 1 and 5),
+  `comentario` text DEFAULT NULL,
+  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reserva_id` (`reserva_id`),
+  KEY `usuario_id` (`usuario_id`),
+  KEY `veiculo_id` (`veiculo_id`),
+  CONSTRAINT `avaliacao_veiculo_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reserva` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `avaliacao_veiculo_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `avaliacao_veiculo_ibfk_3` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculo` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabela para armazenar avaliações de proprietários (donos de veículos)
+CREATE TABLE IF NOT EXISTS `avaliacao_proprietario` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reserva_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL COMMENT 'ID do locatário que faz a avaliação',
+  `proprietario_id` int(11) NOT NULL COMMENT 'ID do proprietário que está sendo avaliado',
+  `nota` int(1) NOT NULL CHECK (`nota` between 1 and 5),
+  `comentario` text DEFAULT NULL,
+  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reserva_id` (`reserva_id`),
+  KEY `usuario_id` (`usuario_id`),
+  KEY `proprietario_id` (`proprietario_id`),
+  CONSTRAINT `avaliacao_proprietario_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reserva` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `avaliacao_proprietario_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `avaliacao_proprietario_ibfk_3` FOREIGN KEY (`proprietario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabela para armazenar avaliações de locatários
+CREATE TABLE IF NOT EXISTS `avaliacao_locatario` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reserva_id` int(11) NOT NULL,
+  `proprietario_id` int(11) NOT NULL COMMENT 'ID do proprietário que faz a avaliação',
+  `locatario_id` int(11) NOT NULL COMMENT 'ID do locatário que está sendo avaliado',
+  `nota` int(1) NOT NULL CHECK (`nota` between 1 and 5),
+  `comentario` text DEFAULT NULL,
+  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reserva_id` (`reserva_id`),
+  KEY `proprietario_id` (`proprietario_id`),
+  KEY `locatario_id` (`locatario_id`),
+  CONSTRAINT `avaliacao_locatario_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reserva` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `avaliacao_locatario_ibfk_2` FOREIGN KEY (`proprietario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `avaliacao_locatario_ibfk_3` FOREIGN KEY (`locatario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Adicionar colunas para média de avaliações na tabela veiculo
+ALTER TABLE `veiculo` 
+ADD COLUMN IF NOT EXISTS `media_avaliacao` DECIMAL(3,1) DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `total_avaliacoes` INT DEFAULT 0;
+
+-- Adicionar colunas para média de avaliações na tabela conta_usuario
+ALTER TABLE `conta_usuario` 
+ADD COLUMN IF NOT EXISTS `media_avaliacao_proprietario` DECIMAL(3,1) DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `total_avaliacoes_proprietario` INT DEFAULT 0,
+ADD COLUMN IF NOT EXISTS `media_avaliacao_locatario` DECIMAL(3,1) DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS `total_avaliacoes_locatario` INT DEFAULT 0;
+
+-- Tabela para armazenar as mensagens
+CREATE TABLE IF NOT EXISTS `mensagem` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reserva_id` int(11) NOT NULL,
+  `remetente_id` int(11) NOT NULL,
+  `mensagem` text NOT NULL,
+  `data_envio` datetime NOT NULL DEFAULT current_timestamp(),
+  `lida` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `reserva_id` (`reserva_id`),
+  KEY `remetente_id` (`remetente_id`),
+  CONSTRAINT `mensagem_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reserva` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `mensagem_ibfk_2` FOREIGN KEY (`remetente_id`) REFERENCES `conta_usuario` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Adicionar um contador de mensagens não lidas no perfil do usuário
+ALTER TABLE `conta_usuario` ADD `mensagens_nao_lidas` int(11) NOT NULL DEFAULT 0;
+
+-- Tabela para armazenar pagamentos
+CREATE TABLE IF NOT EXISTS `pagamento` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reserva_id` int(11) NOT NULL,
+  `valor` decimal(10,2) NOT NULL,
+  `metodo_pagamento` varchar(50) NOT NULL, -- cartao, pix, boleto
+  `status` varchar(20) NOT NULL DEFAULT 'pendente', -- pendente, aprovado, recusado, estornado
+  `data_pagamento` datetime DEFAULT NULL,
+  `data_criacao` datetime NOT NULL DEFAULT current_timestamp(),
+  `comprovante_url` varchar(255) DEFAULT NULL,
+  `codigo_transacao` varchar(100) DEFAULT NULL,
+  `detalhes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reserva_id` (`reserva_id`),
+  CONSTRAINT `pagamento_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reserva` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Histórico de pagamentos para cada reserva
+CREATE TABLE IF NOT EXISTS `historico_pagamento` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pagamento_id` int(11) NOT NULL,
+  `status_anterior` varchar(20) DEFAULT NULL,
+  `novo_status` varchar(20) NOT NULL,
+  `observacao` text DEFAULT NULL,
+  `data_alteracao` datetime NOT NULL DEFAULT current_timestamp(),
+  `usuario_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pagamento_id` (`pagamento_id`),
+  KEY `usuario_id` (`usuario_id`),
+  CONSTRAINT `historico_pagamento_ibfk_1` FOREIGN KEY (`pagamento_id`) REFERENCES `pagamento` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `historico_pagamento_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
