@@ -279,12 +279,11 @@ function enviarReserva(event, veiculoId) {
             } catch (e) {
                 console.error("Função notifySuccess não está disponível:", e);
             }
-            
-            // Adicionar redirecionamento após alguns segundos
+              // Adicionar redirecionamento após alguns segundos
             setTimeout(() => {
                 closeVeiculoDetalhesModal(); // Fechar o modal antes de redirecionar
-                window.location.href = '../reserva/minhas_reservas.php';
-            }, 5000);
+                window.location.href = data.redirect;
+            }, 3000);
         } else {
             console.error("Erro retornado pela API:", data.message);
             // Mostrar mensagem de erro
