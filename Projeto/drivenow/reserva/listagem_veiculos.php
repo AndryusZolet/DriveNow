@@ -248,33 +248,28 @@ $veiculos = $stmt->fetchAll();
                             </div>
                         </div>
                         
-                        <div class="p-6 bg-gradient-to-r from-black/20 to-transparent border-t border-white/10">
-                            <div class="flex justify-between items-center">
+                        <div class="p-6 bg-gradient-to-r from-black/20 to-transparent border-t border-white/10">                            <div class="flex justify-between items-center">
                                 <div class="text-xl font-bold text-white">
                                     R$ <?= number_format($veiculo['preco_diaria'], 2, ',', '.') ?>
                                     <span class="text-sm font-normal text-white/70">/dia</span>
                                 </div>
-                                <button onclick="openVeiculoDetalhesModal(<?= $veiculo['id'] ?>)" class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl transition-colors border border-indigo-400/30 px-4 py-2 text-sm font-medium shadow-md hover:shadow-lg flex items-center">
+                                <a href="detalhes_veiculo.php?id=<?= $veiculo['id'] ?>" class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl transition-colors border border-indigo-400/30 px-4 py-2 text-sm font-medium shadow-md hover:shadow-lg flex items-center">
                                     Ver Detalhes
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 ml-2">
                                         <path d="M5 12h14"></path>
                                         <path d="m12 5 7 7-7 7"></path>
                                     </svg>
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-    </main>
-
-    <footer class="container mx-auto mt-16 px-4 pb-8 text-center text-white/60 text-sm">
+    </main>    <footer class="container mx-auto mt-16 px-4 pb-8 text-center text-white/60 text-sm">
         <p>© <script>document.write(new Date().getFullYear())</script> DriveNow. Todos os direitos reservados.</p>
     </footer>
 
-    <?php include_once '../components/modal_detalhes_veiculo.php'; ?>
-    <script src="../components/modal_detalhes_veiculo.js"></script>
     <script src="./assets/notifications.js"></script>
 </body>
 </html>

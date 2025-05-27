@@ -74,20 +74,21 @@ try {
         $valorTotal,
         $observacoes
     ]);
-    
+      
     $_SESSION['notification'] = [
         'type' => 'success',
-        'message' => 'Reserva realizada com sucesso! Valor total: R$ ' . number_format($valorTotal, 2, ',', '.')
+        'message' => 'Reserva realizada com sucesso! Prossiga para o pagamento.'
     ];
     
-    // Redirecionar para a página de minhas reservas
+    // Redirecionar para a página de pagamento
     echo json_encode([
         'status' => 'success', 
-        'message' => 'Reserva realizada com sucesso!', 
+        'message' => 'Reserva realizada com sucesso! Prossiga para o pagamento.', 
         'valor_total' => number_format($valorTotal, 2, ',', '.'),
         'reserva_id' => $pdo->lastInsertId(),
-        'redirect' => 'minhas_reservas.php'
+        'redirect' => '../pagamento/realizar_pagamento.php?reserva=' . $pdo->lastInsertId()
     ]);
+    
     
 } catch (Exception $e) {
     header('HTTP/1.1 500 Internal Server Error');

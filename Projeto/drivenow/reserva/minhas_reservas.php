@@ -5,6 +5,13 @@ verificarAutenticacao();
 
 $usuario = getUsuario();
 
+// Executar atualização automática de status de reservas
+$atualizarAutomaticamente = true;
+if ($atualizarAutomaticamente) {
+    // Incluir apenas, não é necessário o resultado
+    include_once '../api/atualizar_status_reservas.php';
+}
+
 // Buscar reservas do usuário
 global $pdo;
 $stmt = $pdo->prepare("SELECT r.*, v.veiculo_marca, v.veiculo_modelo, v.veiculo_placa,
@@ -144,9 +151,7 @@ $reservas = $stmt->fetchAll();
                                 // Determinar o status e a classe de cor baseado no status da reserva e nas datas
                                 $now = time();
                                 $inicio = strtotime($reserva['reserva_data']);
-                                $fim = strtotime($reserva['devolucao_data']);
-
-                                // Verificar primeiro o status da reserva no banco de dados
+                                $fim = strtotime($reserva['devolucao_data']);                                // Verificar primeiro o status da reserva no banco de dados
                                 if (isset($reserva['status'])) {
                                     switch($reserva['status']) {
                                         case 'rejeitada':
@@ -179,11 +184,13 @@ $reservas = $stmt->fetchAll();
                                                 $status = 'Pendente';
                                                 $statusClass = 'bg-amber-500/20 text-amber-300 border border-amber-400/30';
                                             } elseif ($now >= $inicio && $now <= $fim) {
-                                                $status = 'Em andamento';
-                                                $statusClass = 'bg-green-500/20 text-green-300 border border-green-400/30';
+                                                // Se a data já passou e ainda está como pendente, mostra como "Expirada"
+                                                $status = 'Expirada';
+                                                $statusClass = 'bg-red-500/20 text-red-300 border border-red-400/30';
                                             } else {
-                                                $status = 'Concluída';
-                                                $statusClass = 'bg-gray-500/20 text-gray-300 border border-gray-400/30';
+                                                // Se a data já passou completamente
+                                                $status = 'Expirada';
+                                                $statusClass = 'bg-red-500/20 text-red-300 border border-red-400/30';
                                             }
                                             break;
                                     }
@@ -233,17 +240,43 @@ $reservas = $stmt->fetchAll();
                                         <?= $status ?>
                                     </span>
                                 </td>
-                                <td class="px-4 py-4">
-                                    <div class="flex gap-2">
+                                <td class="px-4 py-4">                                    <div class="flex gap-2">
                                         <a href="detalhes_reserva.php?id=<?= $reserva['id'] ?>" class="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors">
                                             Detalhes
                                         </a>
-                                        <?php if ((!isset($reserva['status']) || $reserva['status'] == 'pendente' || $reserva['status'] === null) && $now < $inicio): ?>
+                                        <?php 
+                                        // Só permite cancelar reservas pendentes e que ainda não começaram
+                                        $dataReservaPassou = strtotime($reserva['reserva_data']) < time();
+                                        if ((!isset($reserva['status']) || $reserva['status'] == 'pendente' || $reserva['status'] === null) && !$dataReservaPassou): 
+                                        ?>
                                             <a href="cancelar_reserva.php?id=<?= $reserva['id'] ?>" 
                                             class="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors"
                                             onclick="return confirm('Tem certeza que deseja cancelar esta reserva?')">
                                                 Cancelar
                                             </a>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (isset($reserva['status']) && $reserva['status'] == 'finalizada'): ?>
+                                            <?php
+                                            // Verificar se o usuário já avaliou esta reserva
+                                            $stmtCheck = $pdo->prepare("
+                                                SELECT COUNT(*) as existe FROM avaliacao_veiculo 
+                                                WHERE reserva_id = ? AND usuario_id = ?
+                                            ");
+                                            $stmtCheck->execute([$reserva['id'], $usuario['id']]);
+                                            $jaAvaliou = $stmtCheck->fetch()['existe'] > 0;
+                                            
+                                            if (!$jaAvaliou):
+                                            ?>
+                                                <a href="../avaliacao/avaliar_veiculo.php?reserva=<?= $reserva['id'] ?>" 
+                                                class="bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors">
+                                                    Avaliar
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="bg-gray-500/20 text-gray-300 border border-gray-400/30 rounded-lg px-3 py-1 text-sm font-medium">
+                                                    Avaliado
+                                                </span>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 </td>

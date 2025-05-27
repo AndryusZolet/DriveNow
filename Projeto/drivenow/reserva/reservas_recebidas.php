@@ -5,6 +5,13 @@ verificarAutenticacao();
 
 $usuario = getUsuario();
 
+// Executar atualização automática de status de reservas
+$atualizarAutomaticamente = true;
+if ($atualizarAutomaticamente) {
+    // Incluir apenas, não é necessário o resultado
+    include_once '../api/atualizar_status_reservas.php';
+}
+
 // Verificar se o usuário é um dono
 global $pdo;
 $stmt = $pdo->prepare("SELECT id FROM dono WHERE conta_usuario_id = ?");
@@ -62,16 +69,17 @@ $query = "SELECT r.*, v.veiculo_marca, v.veiculo_modelo, v.veiculo_placa,
 
 switch ($aba) {
     case 'pendentes':
-        $query .= " AND (r.status IS NULL OR r.status = 'pendente')";
+        // Apenas mostrar reservas pendentes cujas datas ainda não passaram
+        $query .= " AND (r.status IS NULL OR r.status = 'pendente') AND r.reserva_data > CURRENT_DATE()";
         break;
     case 'confirmadas':
-        $query .= " AND r.status = 'confirmada'";
+        $query .= " AND r.status = 'confirmada' AND r.devolucao_data >= CURRENT_DATE()";
         break;
     case 'andamento':
         $query .= " AND r.status = 'confirmada' AND r.reserva_data <= CURRENT_DATE() AND r.devolucao_data >= CURRENT_DATE()";
         break;
     case 'finalizadas':
-        $query .= " AND (r.status = 'finalizada' OR (r.status = 'confirmada' AND r.devolucao_data < CURRENT_DATE()))";
+        $query .= " AND (r.status = 'finalizada' OR (r.status = 'confirmada' AND r.devolucao_data < CURRENT_DATE()) OR ((r.status IS NULL OR r.status = 'pendente') AND r.reserva_data <= CURRENT_DATE()))";
         break;
     case 'rejeitadas':
         $query .= " AND r.status = 'rejeitada'";
@@ -298,9 +306,12 @@ $reservas = $stmt->fetchAll();
                                         <?= $status ?>
                                     </span>
                                 </td>
-                                <td class="px-4 py-4">
-                                    <div class="flex gap-2">
-                                        <?php if (empty($reserva['status']) || $reserva['status'] === 'pendente'): ?>
+                                <td class="px-4 py-4">                                    <div class="flex gap-2">
+                                        <?php 
+                                        // Verificar se a data de início da reserva já passou
+                                        $dataReservaPassou = strtotime($reserva['reserva_data']) < time();
+                                        
+                                        if ((empty($reserva['status']) || $reserva['status'] === 'pendente') && !$dataReservaPassou): ?>
                                             <form method="post">
                                                 <input type="hidden" name="reserva_id" value="<?= $reserva['id'] ?>">
                                                 <input type="hidden" name="acao" value="confirmar">
