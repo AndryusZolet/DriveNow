@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="flex items-center">
                     <input type="checkbox" id="termos_aceitos" name="termos_aceitos" class="h-4 w-4 text-indigo-500 border-white/30 rounded focus:ring-indigo-400 bg-white/10" required <?= isset($_POST['termos_aceitos']) ? 'checked' : '' ?>>
                     <label for="termos_aceitos" class="ml-2 text-sm text-white/70">
-                        Concordo com os <a href="./termos.html" target="_blank" class="text-indigo-300 hover:text-indigo-200">termos de uso</a>
+                        Concordo com os <a href="./politicas.html" target="_blank" class="text-indigo-300 hover:text-indigo-200">termos de uso</a>
                     </label>
                 </div>
 

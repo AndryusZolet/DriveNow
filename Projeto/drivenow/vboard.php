@@ -105,7 +105,16 @@ $reservasAtivas = $stmt->fetchColumn();
             <h2 class="text-3xl md:text-4xl font-bold text-white">
                 Bem-vindo, <?= htmlspecialchars($usuario['primeiro_nome'] . ' ' . $usuario['segundo_nome']) ?>!
             </h2>
-            <p class="text-white/70 mt-2">Gerencie suas reservas e veículos com facilidade</p>
+            <p class="text-white/70 mt-2 flex flex-wrap gap-3 items-center">
+                Gerencie suas reservas e veículos com facilidade
+                <a href="reserva/pesquisa_avancada.php" class="mt-1 md:mt-0 inline-flex items-center gap-1 text-sm font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 rounded-xl px-3 py-1 hover:bg-indigo-500/30 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    Pesquisa Avançada
+                </a>
+            </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
@@ -225,8 +234,49 @@ $reservasAtivas = $stmt->fetchColumn();
                     <h3 class="text-xl font-bold text-white">Alugar Veículo</h3>
                 </div>
                 <p class="text-white/80 mb-6">Encontre o veículo perfeito para sua próxima viagem.</p>
-                <a href="reserva/listagem_veiculos.php" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-xl transition-colors border border-pink-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
+                <a href="reserva/pesquisa_avancada.php" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-xl transition-colors border border-pink-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
                     Buscar Veículos
+                </a>
+            </div>
+
+            <div class="backdrop-blur-lg bg-white/5 border subtle-border rounded-3xl p-6 shadow-lg transition-all hover:shadow-xl hover:bg-white/10">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3 rounded-2xl bg-indigo-500/30 text-white border border-indigo-400/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Mensagens</h3>
+                    
+                    <?php                    // Verificar se há mensagens não lidas
+                    $stmt = $pdo->prepare("
+                        SELECT COUNT(*) as nao_lidas 
+                        FROM mensagem m
+                        JOIN reserva r ON m.reserva_id = r.id
+                        JOIN veiculo v ON r.veiculo_id = v.id
+                        JOIN dono d ON v.dono_id = d.id
+                        WHERE ((r.conta_usuario_id = ? AND m.remetente_id != ?) OR 
+                              (d.conta_usuario_id = ? AND m.remetente_id != ?))
+                        AND m.lida = 0
+                    ");
+                    $stmt->execute([$usuario['id'], $usuario['id'], $usuario['id'], $usuario['id']]);
+                    $mensagensNaoLidas = $stmt->fetch()['nao_lidas'];
+                    
+                    if ($mensagensNaoLidas > 0): 
+                    ?>
+                        <span class="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
+                            <?= $mensagensNaoLidas ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <p class="text-white/80 mb-6">Comunique-se com proprietários e locatários sobre suas reservas.</p>
+                <a href="mensagens/mensagens.php" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-xl transition-colors border border-indigo-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
+                    Acessar Mensagens
+                    <?php if ($mensagensNaoLidas > 0): ?>
+                        <span class="ml-2 bg-white/20 text-white text-xs font-bold rounded-full px-2 py-1">
+                            <?= $mensagensNaoLidas ?>
+                        </span>
+                    <?php endif; ?>
                 </a>
             </div>
         </div>
