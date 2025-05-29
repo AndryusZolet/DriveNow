@@ -86,6 +86,33 @@ function registrarUsuario($primeiroNome, $segundoNome, $email, $senha) {
     }
 }
 
+// Força a puxar novamente as informacoes do banco de dados
+function updateInfosUsuario() {
+    global $pdo;
+    
+    if (!estaLogado()) {
+        return false;
+    }
+    
+    $usuario = getUsuario();
+    
+    // Busca os dados atualizados do usuário
+    $stmt = $pdo->prepare("SELECT * FROM conta_usuario WHERE e_mail = ?");
+    $stmt->execute([$usuario['e_mail']]);
+    $usuarioAtualizado = $stmt->fetch();
+    
+    if ($usuarioAtualizado) {
+        // Remove a senha da sessão por segurança
+        unset($usuarioAtualizado['senha']);
+        
+        // Atualiza a sessão com os novos dados
+        $_SESSION['usuario'] = $usuarioAtualizado;
+        return true;
+    }
+    
+    return false;
+}
+
 /**
  * Faz login do usuário
  */

@@ -6,6 +6,8 @@ if (!estaLogado()) {
     exit();
 }
 
+updateInfosUsuario();
+
 // Define a variável global $usuario para uso nas páginas
 $usuario = getUsuario();
 
