@@ -234,7 +234,7 @@ $reservasAtivas = $stmt->fetchColumn();
                     <h3 class="text-xl font-bold text-white">Alugar Veículo</h3>
                 </div>
                 <p class="text-white/80 mb-6">Encontre o veículo perfeito para sua próxima viagem.</p>
-                <a href="reserva/pesquisa_avancada.php" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-xl transition-colors border border-pink-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
+                <a href="reserva/listagem_veiculos.php" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-xl transition-colors border border-pink-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
                     Buscar Veículos
                 </a>
             </div>
