@@ -21,12 +21,12 @@
 
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- Copiando estrutura do banco de dados para drivenow
+
 CREATE DATABASE IF NOT EXISTS `drivenow` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 
 USE `drivenow`;
 
--- Copiando estrutura para tabela drivenow.atributo
+-- Tabela para armazenar os atributos
 CREATE TABLE IF NOT EXISTS `atributo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome_atributo` varchar(100) DEFAULT NULL,
@@ -34,19 +34,14 @@ CREATE TABLE IF NOT EXISTS `atributo` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.atributo: ~0 rows (aproximadamente)
-
-
--- Copiando dados para a tabela drivenow.atributos_veiculos: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.categoria_veiculo
+-- Inserindo alguns atributos iniciais
 CREATE TABLE IF NOT EXISTS `categoria_veiculo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `categoria` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.categoria_veiculo: ~8 rows (aproximadamente)
+-- Inserindo categorias de veículos
 INSERT INTO `categoria_veiculo` (`id`, `categoria`) VALUES
 	(1, 'Coupé'),
 	(2, 'Sedan'),
@@ -57,7 +52,7 @@ INSERT INTO `categoria_veiculo` (`id`, `categoria`) VALUES
 	(7, 'Perua'),
 	(8, 'Minivan');
 
--- Copiando estrutura para tabela drivenow.cidade
+-- Tabela para armazenar os atributos de veículos (Cidade)
 CREATE TABLE IF NOT EXISTS `cidade` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `estado_id` int(11) NOT NULL,
@@ -67,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `cidade` (
   CONSTRAINT `cidade_ibfk_1` FOREIGN KEY (`estado_id`) REFERENCES `estado` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.cidade: ~62 rows (aproximadamente)
+ -- Inserindo algumas cidades iniciais
 INSERT INTO `cidade` (id, estado_id, cidade_nome) VALUES
   (7, 4, 'Manaus'),
   (9, 5, 'Salvador'),
@@ -82,7 +77,7 @@ INSERT INTO `cidade` (id, estado_id, cidade_nome) VALUES
   (52, 24, 'Florianópolis'),
   (55, 25, 'São Paulo');
 
--- Copiando estrutura para tabela drivenow.conta_usuario
+-- Tabela para armazenar as informações dos usuários
 CREATE TABLE IF NOT EXISTS `conta_usuario` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `is_admin` tinyint(1) NOT NULL DEFAULT 0,
@@ -106,12 +101,12 @@ CREATE TABLE IF NOT EXISTS `conta_usuario` (
   UNIQUE KEY `e_mail` (`e_mail`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.conta_usuario: ~2 rows (aproximadamente)
+-- Inserindo usuários 
 INSERT INTO `conta_usuario` (`id`, `is_admin`, `primeiro_nome`, `segundo_nome`, `telefone`, `e_mail`, `senha`, `data_de_entrada`, `foto_perfil`, `cpf`, `foto_cnh_frente`, `foto_cnh_verso`, `status_docs`, `data_verificacao`, `admin_verificacao`, `tem_cnh`, `cadastro_completo`, `observacoes_docs`) VALUES
 	(4, 1, 'Valentin', 'Rojas', '(41) 99781-2602', 'valentin@gmail.com', '$2y$10$v2pibQ5XqxByeDZslhrh6e4MRNUWKbCOTayxbfq14o1cNpXaHRike', '2025-05-07', NULL, '594.635.580-55', 'uploads/user_4/docs/foto_cnh_frente_6823ed28d0954_1747184936.jpg', 'uploads/user_4/docs/foto_cnh_verso_6823ed28d0af8_1747184936.jpg', 'aprovado', '2025-05-13 22:30:45', 4, 1, 1, ''),
 	(5, 0, 'Valentin2', 'Rojas2', '', 'valentin2@gmail.com', '$2y$10$qp07.FdiWhaQIGi3lw2dQuASiI9JAJnwKpkEJ.0/3vpHLUPi7Kg1C', '2025-05-13', NULL, '411.216.650-80', 'uploads/user_5/docs/foto_cnh_frente_68251f40120b9_1747263296.jpg', 'uploads/user_5/docs/foto_cnh_verso_68251f4012416_1747263296.jpg', 'aprovado', '2025-05-14 19:56:17', 4, 1, 1, 'Documentos validados!');
 
--- Copiando estrutura para tabela drivenow.dono
+--- Tabela para armazenar os Usuarios Dono (Proprietários de veículos)
 CREATE TABLE IF NOT EXISTS `dono` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `conta_usuario_id` int(11) DEFAULT NULL,
@@ -119,11 +114,11 @@ CREATE TABLE IF NOT EXISTS `dono` (
   UNIQUE KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.dono: ~1 rows (aproximadamente)
+-- Inserindo Donos de veículos (ID)
 INSERT INTO `dono` (`id`, `conta_usuario_id`) VALUES
 	(1, 4);
 
--- Copiando estrutura para tabela drivenow.estado
+-- Tabela para informações dos estados
 CREATE TABLE IF NOT EXISTS `estado` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `estado_nome` varchar(100) NOT NULL,
@@ -131,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `estado` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.estado: ~27 rows (aproximadamente)
+-- Inserindo estados brasileiros
 INSERT INTO `estado` (`id`, `estado_nome`, `sigla`) VALUES
 	(1, 'Acre', 'AC'),
 	(2, 'Alagoas', 'AL'),
@@ -161,7 +156,7 @@ INSERT INTO `estado` (`id`, `estado_nome`, `sigla`) VALUES
 	(26, 'Sergipe', 'SE'),
 	(27, 'Tocantins', 'TO');
 
--- Copiando estrutura para tabela drivenow.favoritos
+-- Tabela para os veiculos favoritos dos usuários
 CREATE TABLE IF NOT EXISTS `favoritos` (
   `veiculo_id` int(11) NOT NULL,
   `conta_usuario_id` int(11) NOT NULL,
@@ -169,9 +164,7 @@ CREATE TABLE IF NOT EXISTS `favoritos` (
   KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.favoritos: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.imagem
+-- Tabela para armazenar as imagens 
 CREATE TABLE IF NOT EXISTS `imagem` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
@@ -181,9 +174,7 @@ CREATE TABLE IF NOT EXISTS `imagem` (
   KEY `veiculo_id` (`veiculo_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.imagem: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.local
+-- Tabela para armazenar os locais (pontos de interesse) onde os veículos estão localizados
 CREATE TABLE IF NOT EXISTS `local` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cidade_id` int(11) NOT NULL,
@@ -196,7 +187,7 @@ CREATE TABLE IF NOT EXISTS `local` (
   CONSTRAINT `local_ibfk_1` FOREIGN KEY (`cidade_id`) REFERENCES `cidade` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.local: ~60 rows (aproximadamente)
+-- Inserindo locais (pontos de interesse) em algumas cidades
 INSERT INTO `local` (`id`, `cidade_id`, `nome_local`, `endereco`, `complemento`, `cep`) VALUES
 	(1, 55, 'Parque Ibirapuera', 'Av. Pedro Álvares Cabral', 'Portão 10', '04094-050'),
 	(2, 55, 'Avenida Paulista', 'Avenida Paulista', 'Próximo ao MASP', '01310-100'),
@@ -259,7 +250,7 @@ INSERT INTO `local` (`id`, `cidade_id`, `nome_local`, `endereco`, `complemento`,
 	(59, 12, 'Catedral Metropolitana', 'Av. Dom Manuel', 'Centro', '60060-090'),
 	(60, 12, 'Aeroporto Pinto Martins', 'Av. Senador Carlos Jereissati', 'Serrinha', '60741-000');
 
--- Copiando estrutura para tabela drivenow.log_verificacao_docs
+-- tabela de registro de logs de verificacao de documentos
 CREATE TABLE IF NOT EXISTS `log_verificacao_docs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `conta_usuario_id` int(11) NOT NULL,
@@ -275,9 +266,7 @@ CREATE TABLE IF NOT EXISTS `log_verificacao_docs` (
   CONSTRAINT `log_verificacao_docs_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `administrador` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.log_verificacao_docs: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.reserva
+-- Tabela para armazenar os atributos de veículos (reserva)
 CREATE TABLE IF NOT EXISTS `reserva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
@@ -295,12 +284,12 @@ CREATE TABLE IF NOT EXISTS `reserva` (
   KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.reserva: ~1 rows (aproximadamente)
+-- reservas inseridas
 INSERT INTO `reserva` (`id`, `veiculo_id`, `conta_usuario_id`, `reserva_data`, `devolucao_data`, `diaria_valor`, `taxas_de_uso`, `taxas_de_limpeza`, `valor_total`, `status`, `observacoes`) VALUES
 	(7, 6, 5, '2025-05-15', '2025-05-22', 350.00, 20.00, 30.00, 2500.00, 'rejeitada', 'Teste obs'),
 	(8, 6, 5, '2025-05-16', '2025-05-19', 350.00, 20.00, 30.00, 1100.00, 'pendente', 'E para fazer uma viagem ate a praia.');
 
--- Copiando estrutura para tabela drivenow.review_usuario
+-- tabela de reviews de usuários
 CREATE TABLE IF NOT EXISTS `review_usuario` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
@@ -312,9 +301,7 @@ CREATE TABLE IF NOT EXISTS `review_usuario` (
   KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.review_usuario: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.veiculo
+-- tabela de atributos de veículos
 CREATE TABLE IF NOT EXISTS `veiculo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `local_id` int(11) DEFAULT NULL,
@@ -339,7 +326,7 @@ CREATE TABLE IF NOT EXISTS `veiculo` (
   KEY `dono_id` (`dono_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.atributos_veiculos
+-- tablea para armazenar os atributos de veículos
 CREATE TABLE IF NOT EXISTS `atributos_veiculos` (
   `veiculo_id` int(11) NOT NULL,
   `atributo_id` int(11) NOT NULL,
@@ -349,7 +336,7 @@ CREATE TABLE IF NOT EXISTS `atributos_veiculos` (
   CONSTRAINT `atributos_veiculos_ibfk_2` FOREIGN KEY (`atributo_id`) REFERENCES `atributo` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.veiculo: ~2 rows (aproximadamente)
+-- veículos inseridos
 INSERT INTO `veiculo` (`id`, `local_id`, `categoria_veiculo_id`, `dono_id`, `veiculo_marca`, `veiculo_modelo`, `veiculo_ano`, `veiculo_km`, `veiculo_placa`, `veiculo_cambio`, `veiculo_combustivel`, `veiculo_portas`, `veiculo_acentos`, `veiculo_tracao`, `disponivel`, `preco_diaria`, `descricao`) VALUES
 	(6, 13, 2, 1, 'Chevrolet', 'Onix Plus', 2022, 2000, 'ABD2G62', 'Automático', 'Gasolina', 4, 5, 'Dianteira', 1, 350.00, 'Otimo para viagem, veiculo todo revisado!'),
 	(7, 44, 1, 1, 'Fiat', 'Uno', 1998, 158900, 'ABC1234', 'Manual', 'Gasolina', 2, 4, 'Dianteira', 0, 50.00, 'Veiculo quase morrendo mas ainda funciona e esta barato para alugar!');
@@ -481,7 +468,7 @@ CREATE TABLE IF NOT EXISTS `historico_pagamento` (
 
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
 
--- Copiando estrutura para tabela drivenow.atributo
+
 CREATE TABLE IF NOT EXISTS `atributo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome_atributo` varchar(100) DEFAULT NULL,
@@ -489,19 +476,13 @@ CREATE TABLE IF NOT EXISTS `atributo` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.atributo: ~0 rows (aproximadamente)
 
-
--- Copiando dados para a tabela drivenow.atributos_veiculos: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.categoria_veiculo
 CREATE TABLE IF NOT EXISTS `categoria_veiculo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `categoria` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.conta_usuario
 CREATE TABLE IF NOT EXISTS `conta_usuario` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `is_admin` tinyint(1) NOT NULL DEFAULT 0,
@@ -525,7 +506,7 @@ CREATE TABLE IF NOT EXISTS `conta_usuario` (
   UNIQUE KEY `e_mail` (`e_mail`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.dono
+
 CREATE TABLE IF NOT EXISTS `dono` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `conta_usuario_id` int(11) DEFAULT NULL,
@@ -533,7 +514,6 @@ CREATE TABLE IF NOT EXISTS `dono` (
   UNIQUE KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.estado
 CREATE TABLE IF NOT EXISTS `estado` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `estado_nome` varchar(100) NOT NULL,
@@ -541,7 +521,6 @@ CREATE TABLE IF NOT EXISTS `estado` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.favoritos
 CREATE TABLE IF NOT EXISTS `favoritos` (
   `veiculo_id` int(11) NOT NULL,
   `conta_usuario_id` int(11) NOT NULL,
@@ -549,9 +528,6 @@ CREATE TABLE IF NOT EXISTS `favoritos` (
   KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.favoritos: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.imagem
 CREATE TABLE IF NOT EXISTS `imagem` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
@@ -561,9 +537,7 @@ CREATE TABLE IF NOT EXISTS `imagem` (
   KEY `veiculo_id` (`veiculo_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.log_verificacao_docs: ~0 rows (aproximadamente)
 
--- Copiando estrutura para tabela drivenow.reserva
 CREATE TABLE IF NOT EXISTS `reserva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
@@ -581,7 +555,6 @@ CREATE TABLE IF NOT EXISTS `reserva` (
   KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.review_usuario
 CREATE TABLE IF NOT EXISTS `review_usuario` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
@@ -593,9 +566,6 @@ CREATE TABLE IF NOT EXISTS `review_usuario` (
   KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.review_usuario: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.veiculo
 CREATE TABLE IF NOT EXISTS `veiculo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `local_id` int(11) DEFAULT NULL,
@@ -620,7 +590,6 @@ CREATE TABLE IF NOT EXISTS `veiculo` (
   KEY `dono_id` (`dono_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.cidade
 CREATE TABLE IF NOT EXISTS `cidade` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `estado_id` int(11) NOT NULL,
@@ -698,7 +667,6 @@ CREATE TABLE IF NOT EXISTS `pagamento` (
   CONSTRAINT `pagamento_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reserva` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.atributos_veiculos
 CREATE TABLE IF NOT EXISTS `atributos_veiculos` (
   `veiculo_id` int(11) NOT NULL,
   `atributo_id` int(11) NOT NULL,
@@ -726,9 +694,6 @@ CREATE TABLE IF NOT EXISTS `avaliacao_veiculo` (
   CONSTRAINT `avaliacao_veiculo_ibfk_3` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculo` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela drivenow.imagem: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela drivenow.local
 CREATE TABLE IF NOT EXISTS `local` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cidade_id` int(11) NOT NULL,
@@ -757,7 +722,6 @@ CREATE TABLE IF NOT EXISTS `historico_pagamento` (
   CONSTRAINT `historico_pagamento_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando estrutura para tabela drivenow.log_verificacao_docs
 CREATE TABLE IF NOT EXISTS `log_verificacao_docs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `conta_usuario_id` int(11) NOT NULL,
