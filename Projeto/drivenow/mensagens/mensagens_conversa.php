@@ -74,21 +74,14 @@ $outroUsuarioId = $ehProprietario ? $reserva['locatario_id'] : $reserva['proprie
 $isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
                   strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 
-// Buscar mensagens da conversa (com filtro para evitar duplicatas de conteúdo)
+// Buscar mensagens da conversa (com DISTINCT para evitar duplicatas)
 $stmt = $pdo->prepare("
-    SELECT m.*, cu.primeiro_nome, cu.segundo_nome
+    SELECT DISTINCT m.id, m.reserva_id, m.remetente_id, m.mensagem, m.data_envio, m.lida,
+           cu.primeiro_nome, cu.segundo_nome
     FROM mensagem m
     INNER JOIN conta_usuario cu ON m.remetente_id = cu.id
     WHERE m.reserva_id = ?
-    AND NOT EXISTS (
-        SELECT 1 FROM mensagem m2
-        WHERE m2.reserva_id = m.reserva_id
-        AND m2.remetente_id = m.remetente_id
-        AND m2.mensagem = m.mensagem
-        AND m2.id < m.id
-        AND m2.data_envio >= DATE_SUB(m.data_envio, INTERVAL 10 SECOND)
-    )
-    ORDER BY m.data_envio ASC
+    ORDER BY m.id ASC
 ");
 $stmt->execute([$reservaId]);
 $mensagens = $stmt->fetchAll();
@@ -113,6 +106,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mensagem']) && !empty
         $mensagemTexto = trim($_POST['mensagem']);
         
         if (!empty($mensagemTexto)) {
+            // Verificar se a mensagem já foi enviada recentemente (evitar duplicatas)
+            $stmt = $pdo->prepare("
+                SELECT id FROM mensagem 
+                WHERE reserva_id = ? 
+                AND remetente_id = ? 
+                AND mensagem = ? 
+                AND data_envio >= DATE_SUB(NOW(), INTERVAL 10 SECOND)
+            ");
+            $stmt->execute([$reservaId, $usuario['id'], $mensagemTexto]);
+            
+            if ($stmt->rowCount() > 0) {
+                // Mensagem duplicada, não inserir novamente
+                if ($isAjaxRequest) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Mensagem já enviada'
+                    ]);
+                    exit;
+                } else {
+                    header("Location: mensagens_conversa.php?reserva={$reservaId}");
+                    exit;
+                }
+            }
+            
             // Inserir a mensagem no banco de dados
             $stmt = $pdo->prepare("
                 INSERT INTO mensagem (reserva_id, remetente_id, mensagem, data_envio) 
@@ -125,7 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mensagem']) && !empty
                 UPDATE conta_usuario
                 SET mensagens_nao_lidas = mensagens_nao_lidas + 1
                 WHERE id = ?
-            ");            $stmt->execute([$outroUsuarioId]);
+            ");
+            $stmt->execute([$outroUsuarioId]);
             
             // Responder se for AJAX ou redirecionar se for envio normal
             if ($isAjaxRequest) {
@@ -487,9 +505,18 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
     
     <footer class="mt-12 mb-6 px-4 text-center text-white/50 text-sm">
         <p>&copy; <?= date('Y') ?> DriveNow. Todos os direitos reservados.</p>
-    </footer>    <script src="../assets/notifications.js"></script>
+    </footer>
+    
+    <script src="../assets/notifications.js"></script>
     <script src="../assets/live-chat.js"></script>
-    <script>
+    <script>        // Debug: verificar se as funções foram carregadas
+        console.log('=== CHAT DEBUG INFO ===');
+        console.log('Live chat carregado?', typeof initializeChat === 'function');
+        console.log('CheckNewMessages disponível?', typeof checkNewMessages === 'function');
+        console.log('Reserva ID:', <?= $reservaId ?>);
+        console.log('User ID:', <?= $usuario['id'] ?>);
+        console.log('========================');
+        
         document.addEventListener('DOMContentLoaded', function() {
             initializeNotifications();
             
@@ -508,24 +535,25 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
             const messageInput = document.querySelector('textarea[name="mensagem"]');
             if (messageInput) {
                 messageInput.focus();
-            }                // Definir o ID do usuário atual para o chat em tempo real
-                window.userId = <?= $usuario['id'] ?>;
-                
-                // Verificar se estamos voltando de outra página ou reconectando
-                // Usar localStorage para persistir entre abas
-                const chatSession = localStorage.getItem('chatSession_' + <?= $reservaId ?>);
-                const pageReloaded = chatSession ? true : false;
-                localStorage.setItem('chatSession_' + <?= $reservaId ?>, Date.now());
-                
-                // Inicializar o chat em tempo real
-                initializeChat({
-                    updateInterval: 3000, // Verificar a cada 3 segundos para atualizações mais rápidas
-                    scrollOnNewMessages: true,
-                    showNotification: true,
-                    isReconnection: pageReloaded
-                });
-                
-                // Manipular envio de formulário para evitar recarregar a página
+            }
+            
+            // Definir o ID do usuário atual para o chat em tempo real
+            window.userId = <?= $usuario['id'] ?>;
+            
+            // Verificar se estamos voltando de outra página ou reconectando
+            // Usar localStorage para persistir entre abas
+            const chatSession = localStorage.getItem('chatSession_' + <?= $reservaId ?>);
+            const pageReloaded = chatSession ? true : false;
+            localStorage.setItem('chatSession_' + <?= $reservaId ?>, Date.now());
+              // Inicializar o chat em tempo real
+            initializeChat({
+                updateInterval: 3000, // Verificar a cada 3 segundos
+                scrollOnNewMessages: true,
+                showNotification: true,
+                isReconnection: pageReloaded
+            });
+            
+            // Manipular envio de formulário para evitar recarregar a página
             const messageForm = document.querySelector('form');
             messageForm.addEventListener('submit', function(e) {
                 // Só interceptamos se tiver JavaScript habilitado
@@ -557,6 +585,12 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
                     typingIndicator.style.display = 'block';
                     typingIndicator.querySelector('span').textContent = 'Enviando mensagem...';
                     
+                    // Desabilitar o botão de envio
+                    const submitButton = messageForm.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                    }
+                    
                     // Criar FormData e enviar via AJAX
                     const formData = new FormData(this);
                     
@@ -577,22 +611,48 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
                             // Limpar o campo de mensagem
                             messageInput.value = '';
                             
+                            // Adicionar a mensagem imediatamente no chat sem esperar
+                            // Criar a mensagem localmente
+                            const novaMensagem = {
+                                id: Date.now(), // ID temporário único
+                                remetente_id: <?= $usuario['id'] ?>,
+                                mensagem: mensagemTexto,
+                                data_envio: new Date().toISOString(),
+                                primeiro_nome: '<?= htmlspecialchars($usuario['primeiro_nome']) ?>',
+                                segundo_nome: '<?= htmlspecialchars($usuario['segundo_nome']) ?>'
+                            };
+                            
+                            // Adicionar mensagem ao chat imediatamente
+                            addNewMessages([novaMensagem]);
+                            
                             // Aguardar um pequeno intervalo antes de verificar novas mensagens
-                            // Isso dá tempo para o servidor processar a mensagem
-                            // setTimeout(() => {
-                            //     // Forçar verificação imediata de novas mensagens
-                            //     checkNewMessages();
-                            //     // Esconder indicador
-                            //     typingIndicator.style.display = 'none';
-                            //     // Focar novamente no campo de mensagem
-                            //     messageInput.focus();
-                            // }, 500);
+                            // Isso dá tempo para o servidor processar a mensagem e sincronizar
+                            setTimeout(() => {
+                                // Forçar verificação imediata de novas mensagens para sincronizar
+                                if (typeof checkNewMessages === 'function') {
+                                    checkNewMessages();
+                                }
+                                // Esconder indicador
+                                typingIndicator.style.display = 'none';
+                                // Focar novamente no campo de mensagem
+                                messageInput.focus();
+                                // Reabilitar o botão de envio
+                                if (submitButton) {
+                                    submitButton.disabled = false;
+                                }
+                            }, 500);
                         } else {
                             throw new Error(data.message || 'Erro ao enviar mensagem');
-                        }                    })
+                        }
+                    })
                     .catch(error => {
+                        console.error('Erro:', error);
                         notify('Erro ao enviar mensagem. Tente novamente.', 'error');
                         typingIndicator.style.display = 'none';
+                        // Reabilitar o botão de envio
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                        }
                     });
                 }
             });
@@ -614,13 +674,15 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
                     }, 1000);
                 });
             }
-              // Verificar novas mensagens ao focar a janela novamente
-            // window.addEventListener('focus', function() {
-            //     if (chatInitialized) {
-            //         checkNewMessages();
-            //     }
-            // });
-              // Limpar quando o usuário sai da página
+            
+            // Verificar novas mensagens ao focar a janela novamente
+            window.addEventListener('focus', function() {
+                if (typeof chatInitialized !== 'undefined' && chatInitialized) {
+                    checkNewMessages();
+                }
+            });
+            
+            // Limpar quando o usuário sai da página
             window.addEventListener('beforeunload', function() {
                 // Manter um registro de que o chat estava ativo com timestamp
                 // (será utilizado se o usuário retornar)

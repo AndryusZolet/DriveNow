@@ -1,344 +1,299 @@
-/**
- * Chat em tempo real DriveNow
- * Este script realiza polling periódico para verificar novas mensagens
- */
-
-// Configuração do sistema de chat
-const chatConfig = {
-    updateInterval: 5000, // Intervalo de atualização em ms (5 segundos)
-    scrollOnNewMessages: true, // Rolar automaticamente para novas mensagens
-    playSound: true, // Reproduzir som para novas mensagens
-    showNotification: true // Mostrar notificação para novas mensagens
-};
-
-// Variáveis globais
-let lastMessageTimestamp = null;
-let chatUpdateInterval = null;
-let messageContainer = null;
+// Sistema de chat em tempo real corrigido
+let chatInitialized = false;
+let lastMessageId = 0;
+let updateTimer = null;
 let reservaId = null;
-let isActiveTab = true;
-let unreadMessages = 0;
+let messageIds = new Set(); // Controle de IDs de mensagens já exibidas
 
-// Inicializar o sistema de chat
-function initializeChat(options = {}) {
-    // Mesclar opções
-    Object.assign(chatConfig, options);
-    
-    // Obter o contêiner de mensagens
-    messageContainer = document.querySelector('#message-container');
-    if (!messageContainer) {
-        console.error('Container de mensagens não encontrado');
-        return;
-    }
-    
-    // Obter ID da reserva da URL
+// Função para obter o ID da reserva da URL
+function getReservaId() {
     const urlParams = new URLSearchParams(window.location.search);
-    reservaId = urlParams.get('reserva');
+    return urlParams.get('reserva');
+}
+
+// Função para inicializar o sistema de chat
+function initializeChat(options = {}) {
+    const defaults = {
+        updateInterval: 3000,
+        scrollOnNewMessages: true,
+        showNotification: true,
+        isReconnection: false
+    };
+    
+    const settings = { ...defaults, ...options };
+    
+    reservaId = getReservaId();
     if (!reservaId) {
-        console.error('ID da reserva não encontrado na URL');
+        console.error('ID da reserva não encontrado');
         return;
     }
     
-    // Obter timestamp da última mensagem
-    const mensagens = messageContainer.querySelectorAll('.message-item');
-    if (mensagens.length > 0) {
-        const ultimaMensagem = mensagens[mensagens.length - 1];
-        const dataHora = ultimaMensagem.querySelector('.message-time').textContent.trim();
-        lastMessageTimestamp = formatDateToDatabase(dataHora);
-    }
+    console.log('Inicializando chat para reserva:', reservaId);
     
-    // Iniciar polling para novas mensagens
-    startChatPolling();
+    // Coletar IDs das mensagens já existentes no DOM
+    collectExistingMessageIds();
     
-    // Monitorar visibilidade da página
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    // Definir o último ID de mensagem
+    updateLastMessageId();
     
-    // Rolar para o final das mensagens
-    scrollToBottom();
+    console.log('Último ID de mensagem:', lastMessageId);
+    console.log('IDs de mensagens existentes:', Array.from(messageIds));
     
-    // Adicionar indicadores de status como enviando/online
-    setupStatusIndicators();
+    chatInitialized = true;
     
-    console.log('Sistema de chat inicializado com sucesso', {
-        reservaId,
-        lastMessageTimestamp,
-        config: chatConfig
-    });
+    // Iniciar verificação periódica
+    startUpdateTimer(settings.updateInterval);
+    
+    console.log('Chat inicializado com sucesso');
 }
 
-// Configurar indicadores de status
-function setupStatusIndicators() {
-    // Obter o formulário de mensagem
-    const messageForm = document.querySelector('form');
-    const messageInput = document.querySelector('textarea[name="mensagem"]');
-    
-    if (!messageForm || !messageInput) {
-        return;
-    }
-    
-    // Botão de envio
-    const sendButton = messageForm.querySelector('button[type="submit"]');
-    
-    // Indicador de digitação
-    const typingIndicator = document.getElementById('typing-indicator');
-    
-    // Adicionar efeito ao botão quando estiver digitando
-    messageInput.addEventListener('input', function() {
-        if (this.value.trim() !== '') {
-            sendButton.classList.add('animate-pulse');
-        } else {
-            sendButton.classList.remove('animate-pulse');
+// Função para coletar IDs de mensagens já existentes
+function collectExistingMessageIds() {
+    const existingMessages = document.querySelectorAll('.message-item[data-message-id]');
+    existingMessages.forEach(msg => {
+        const id = parseInt(msg.getAttribute('data-message-id'));
+        if (id) {
+            messageIds.add(id);
+            lastMessageId = Math.max(lastMessageId, id);
         }
     });
-    
-    // Esconder indicador de digitação inicialmente
-    if (typingIndicator) {
-        typingIndicator.style.display = 'none';
-    }
 }
 
-// Iniciar polling para novas mensagens
-function startChatPolling() {
-    // Limpar intervalo existente
-    if (chatUpdateInterval) {
-        clearInterval(chatUpdateInterval);
-    }
-    
-    // Verificar imediatamente
-    checkNewMessages();
-    
-    // Configurar intervalo para verificações periódicas
-    chatUpdateInterval = setInterval(checkNewMessages, chatConfig.updateInterval);
+// Função para atualizar o último ID de mensagem
+function updateLastMessageId() {
+    const messages = document.querySelectorAll('.message-item[data-message-id]');
+    messages.forEach(msg => {
+        const id = parseInt(msg.getAttribute('data-message-id'));
+        if (id > lastMessageId) {
+            lastMessageId = id;
+        }
+    });
 }
 
-// Verificar novas mensagens
+// Função para iniciar o timer de atualização
+function startUpdateTimer(interval) {
+    // Limpar timer existente
+    if (updateTimer) {
+        clearInterval(updateTimer);
+    }
+    
+    // Criar novo timer
+    updateTimer = setInterval(() => {
+        checkNewMessages();
+    }, interval);
+}
+
+// Função para verificar novas mensagens
 function checkNewMessages() {
-    // Obter o indicador de atualização
-    const typingIndicator = document.getElementById('typing-indicator');
+    if (!chatInitialized || !reservaId) return;
     
-    // Construir URL para solicitação AJAX
-    let url = `../api/verificar_novas_mensagens.php?reserva=${reservaId}`;
-    if (lastMessageTimestamp) {
-        url += `&timestamp=${encodeURIComponent(lastMessageTimestamp)}`;
-    }
+    console.log('Verificando novas mensagens... último ID:', lastMessageId);
     
-    // Mostrar indicador durante a verificação (com atraso para evitar flickering)
-    let indicatorTimeout = setTimeout(() => {
-        if (typingIndicator) {
-            typingIndicator.style.display = 'block';
-            typingIndicator.querySelector('span').textContent = 'Verificando novas mensagens...';
+    // Fazer requisição para verificar novas mensagens
+    fetch(`check_messages.php?reserva=${reservaId}&last_id=${lastMessageId}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
         }
-    }, 500);
-    
-    // Fazer solicitação AJAX
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Limpar timeout para evitar mostrar o indicador desnecessariamente
-            clearTimeout(indicatorTimeout);
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Resposta da API:', data);
+        
+        if (data.success && data.messages && data.messages.length > 0) {
+            console.log('Novas mensagens encontradas:', data.messages.length);
             
-            // Esconder indicador
-            if (typingIndicator) {
-                typingIndicator.style.display = 'none';
-            }
+            // Processar apenas mensagens novas
+            const newMessages = data.messages.filter(msg => {
+                const msgId = parseInt(msg.id);
+                return !messageIds.has(msgId) && msgId > lastMessageId;
+            });
             
-            if (data.success && data.mensagens && data.mensagens.length > 0) {
-                // Novas mensagens encontradas
-                updateChatWithNewMessages(data.mensagens);
+            console.log('Mensagens realmente novas:', newMessages.length);
+            
+            if (newMessages.length > 0) {
+                addNewMessages(newMessages);
                 
-                // Atualizar timestamp da última mensagem
-                if (data.mensagens.length > 0) {
-                    const lastMsg = data.mensagens[data.mensagens.length - 1];
-                    lastMessageTimestamp = lastMsg.data_envio;
-                }
-                
-                // Notificar o usuário se a guia não estiver ativa
-                if (!isActiveTab && chatConfig.showNotification) {
-                    notifyNewMessages(data.mensagens.length);
-                }
+                // Atualizar o último ID
+                const maxId = Math.max(...newMessages.map(m => parseInt(m.id)));
+                lastMessageId = maxId;
+                console.log('Novo último ID:', lastMessageId);
             }
-        })
-        .catch(error => {
-            // Limpar timeout e esconder indicador em caso de erro
-            clearTimeout(indicatorTimeout);
-            if (typingIndicator) {
-                typingIndicator.style.display = 'none';
+        } else {
+            console.log('Nenhuma mensagem nova encontrada');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao verificar novas mensagens:', error);
+        
+        // Em caso de erro, tentar novamente em 10 segundos
+        setTimeout(() => {
+            if (chatInitialized) {
+                console.log('Tentando reconectar...');
+                checkNewMessages();
             }
-            
-            console.error('Erro ao verificar novas mensagens:', error);
-        });
+        }, 10000);
+    });
 }
 
-// Atualizar chat com novas mensagens
-function updateChatWithNewMessages(mensagens) {
-    // Lembrar posição de rolagem
-    const wasAtBottom = isScrolledToBottom();
+// Função para adicionar novas mensagens ao chat
+function addNewMessages(messages) {
+    const container = document.getElementById('message-container');
+    if (!container) return;
     
-    // Adicionar novas mensagens ao container
-    mensagens.forEach(msg => {
-        const messageElement = createMessageElement(msg);
-        messageContainer.appendChild(messageElement);
+    // Verificar se o usuário está no final do scroll
+    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+    
+    messages.forEach(message => {
+        const msgId = parseInt(message.id);
+        
+        // Verificação dupla para evitar duplicatas
+        if (messageIds.has(msgId)) return;
+        
+        // Para mensagens temporárias (IDs grandes), verificar se já existe uma mensagem similar
+        if (msgId > 1000000000000) { // IDs temporários são timestamps
+            const existingMessages = container.querySelectorAll('.message-item');
+            let isDuplicate = false;
+            existingMessages.forEach(existingMsg => {
+                const existingContent = existingMsg.querySelector('.message-content')?.textContent;
+                if (existingContent && existingContent.trim() === message.mensagem.trim()) {
+                    const existingTime = existingMsg.querySelector('.message-time')?.textContent;
+                    const newTime = formatDateTime(message.data_envio);
+                    // Se o conteúdo é igual e o tempo é muito próximo, é duplicata
+                    if (Math.abs(new Date(existingTime) - new Date(newTime)) < 60000) { // 1 minuto
+                        isDuplicate = true;
+                    }
+                }
+            });
+            if (isDuplicate) return;
+        }
+        
+        // Adicionar ID ao conjunto
+        messageIds.add(msgId);
+        
+        // Criar elemento da mensagem
+        const messageElement = createMessageElement(message);
+        
+        // Adicionar ao container
+        container.appendChild(messageElement);
+        
+        // Mostrar notificação se não for mensagem do próprio usuário
+        if (message.remetente_id != window.userId) {
+            showMessageNotification(message);
+        }
     });
     
-    // Rolar para o final se necessário
-    if (wasAtBottom && chatConfig.scrollOnNewMessages) {
-        scrollToBottom();
+    // Scroll para o final se estava no final
+    if (isAtBottom) {
+        container.scrollTop = container.scrollHeight;
     }
     
-    // Reproduzir som se estiver configurado
-    if (chatConfig.playSound && !isActiveTab) {
-        playNotificationSound();
-    }
-}
-
-// Criar elemento de mensagem
-function createMessageElement(mensagem) {
-    // Verificar dados necessários
-    if (!mensagem || !mensagem.mensagem || !mensagem.data_envio) {
-        console.error('Dados de mensagem inválidos:', mensagem);
-        return null;
-    }
-    
-    // Determinar se é uma mensagem enviada pelo usuário atual
-    const ehRemetente = mensagem.remetente_id == window.userId;
-    
-    // Formatar a data para exibição
-    const dataEnvio = formatDatabaseDate(mensagem.data_envio);
-    
-    // Obter nome do remetente (importante para mensagens recebidas)
-    const nomeRemetente = mensagem.nome_remetente || 
-                         (mensagem.primeiro_nome && mensagem.segundo_nome ? 
-                          `${mensagem.primeiro_nome} ${mensagem.segundo_nome}` : 
-                          'Usuário');
-    
-    // Criar elemento da mensagem
-    const messageItem = document.createElement('div');
-    messageItem.className = `message-item ${ehRemetente ? 'sent' : 'received'}`;
-    
-    // Construir HTML interno da mensagem
-    let innerHtml = '';
-    
-    // Adicionar nome do remetente apenas para mensagens recebidas
-    if (!ehRemetente) {
-        innerHtml += `<div class="text-xs text-white/60 mb-1">${nomeRemetente}</div>`;
-    }
-    
-    // Adicionar conteúdo da mensagem e hora
-    innerHtml += `
-        <div class="message-content">
-            ${mensagem.mensagem.replace(/\n/g, '<br>')}
-        </div>
-        <div class="message-time">
-            ${dataEnvio}
-        </div>
-    `;
-    
-    // Aplicar HTML ao elemento
-    messageItem.innerHTML = innerHtml;
-    
-    // Adicionar uma pequena animação de entrada
-    messageItem.style.opacity = '0';
-    messageItem.style.transform = 'translateY(10px)';
-    
-    // Aplicar animação após um curto atraso
-    setTimeout(() => {
-        messageItem.style.transition = 'all 0.3s ease';
-        messageItem.style.opacity = '1';
-        messageItem.style.transform = 'translateY(0)';
-    }, 10);
-    
-    return messageItem;
-}
-
-// Verificar se o chat está rolado até o final
-function isScrolledToBottom() {
-    return messageContainer.scrollHeight - messageContainer.clientHeight <= messageContainer.scrollTop + 50;
-}
-
-// Rolar para o final do chat
-function scrollToBottom() {
-    messageContainer.scrollTop = messageContainer.scrollHeight;
-}
-
-// Lidar com a mudança de visibilidade da página
-function handleVisibilityChange() {
-    isActiveTab = !document.hidden;
-    
-    if (isActiveTab && unreadMessages > 0) {
-        // Resetar contador de mensagens não lidas
-        unreadMessages = 0;
-        // Atualizar título da página
-        document.title = document.title.replace(/^\(\d+\) /, '');
+    // Remover mensagem de "nenhuma mensagem"
+    const emptyMessage = container.querySelector('.text-center.py-8');
+    if (emptyMessage) {
+        emptyMessage.remove();
     }
 }
 
-// Notificar usuário sobre novas mensagens
-function notifyNewMessages(count) {
-    unreadMessages += count;
+// Função para criar elemento de mensagem
+function createMessageElement(message) {
+    const div = document.createElement('div');
+    const isSent = message.remetente_id == window.userId;
     
-    // Atualizar título da página
-    const currentTitle = document.title.replace(/^\(\d+\) /, '');
-    document.title = `(${unreadMessages}) ${currentTitle}`;
+    div.className = `message-item ${isSent ? 'sent' : 'received'}`;
+    div.setAttribute('data-message-id', message.id);
     
-    // Mostrar notificação visual
-    if (typeof notify === 'function') {
-        notify(`Você recebeu ${count} nova${count > 1 ? 's' : ''} mensage${count > 1 ? 'ns' : 'm'}.`, 'info');
+    // Nome do remetente (apenas para mensagens recebidas)
+    if (!isSent) {
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'text-xs text-white/60 mb-1';
+        nameDiv.textContent = `${message.primeiro_nome} ${message.segundo_nome}`;
+        div.appendChild(nameDiv);
     }
+    
+    // Conteúdo da mensagem
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    // Escapar HTML e converter quebras de linha
+    const escapedMessage = message.mensagem
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/\n/g, '<br>');
+    contentDiv.innerHTML = escapedMessage;
+    div.appendChild(contentDiv);
+    
+    // Horário
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'message-time';
+    timeDiv.textContent = formatDateTime(message.data_envio);
+    div.appendChild(timeDiv);
+    
+    return div;
 }
 
-// Reproduzir som de notificação
-function playNotificationSound() {
-    // Implementação opcional de som
-    try {
-        const audio = new Audio('../assets/notification.mp3');
-        audio.volume = 0.5;
-        audio.play();
-    } catch (e) {
-        console.error('Erro ao reproduzir som de notificação:', e);
-    }
+// Função para formatar data e hora
+function formatDateTime(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
-// Formatar data do banco para exibição (YYYY-MM-DD HH:MM:SS para DD/MM/YYYY HH:MM)
-function formatDatabaseDate(dbDate) {
-    if (!dbDate) return '';
-    
-    try {
-        const date = new Date(dbDate.replace(' ', 'T'));
-        return `${padZero(date.getDate())}/${padZero(date.getMonth() + 1)}/${date.getFullYear()} ${padZero(date.getHours())}:${padZero(date.getMinutes())}`;
-    } catch (e) {
-        console.error('Erro ao formatar data:', e, dbDate);
-        return dbDate;
-    }
-}
-
-// Formatar data de exibição para o formato do banco (DD/MM/YYYY HH:MM para YYYY-MM-DD HH:MM:SS)
-function formatDateToDatabase(displayDate) {
-    if (!displayDate) return '';
-    
-    try {
-        const parts = displayDate.split(' ');
-        const dateParts = parts[0].split('/');
-        const timeParts = parts[1].split(':');
+// Função para mostrar notificação de nova mensagem
+function showMessageNotification(message) {
+    // Verificar se o usuário permite notificações
+    if (window.Notification && Notification.permission === 'granted') {
+        const notification = new Notification('Nova mensagem', {
+            body: `${message.primeiro_nome}: ${message.mensagem.substring(0, 50)}...`,
+            icon: '/favicon.ico'
+        });
         
-        return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${timeParts[0]}:${timeParts[1]}:00`;
-    } catch (e) {
-        console.error('Erro ao formatar data para o banco:', e, displayDate);
-        return null;
+        notification.onclick = function() {
+            window.focus();
+            notification.close();
+        };
     }
 }
 
-// Adicionar zeros à esquerda
-function padZero(num) {
-    return num.toString().padStart(2, '0');
+// Função para parar o timer de atualização
+function stopUpdateTimer() {
+    if (updateTimer) {
+        clearInterval(updateTimer);
+        updateTimer = null;
+    }
 }
 
-// Inicializar automaticamente
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar depois que a página estiver carregada
-    setTimeout(initializeChat, 500);
+// Limpar ao sair da página
+window.addEventListener('beforeunload', function() {
+    stopUpdateTimer();
 });
+
+// Pausar quando a janela perde o foco
+window.addEventListener('blur', function() {
+    stopUpdateTimer();
+});
+
+// Retomar quando a janela ganha o foco
+window.addEventListener('focus', function() {
+    if (chatInitialized) {
+        startUpdateTimer(3000);
+        checkNewMessages();
+    }
+});
+
+// Exportar funções globais
+window.initializeChat = initializeChat;
+window.checkNewMessages = checkNewMessages;
+window.stopUpdateTimer = stopUpdateTimer;
