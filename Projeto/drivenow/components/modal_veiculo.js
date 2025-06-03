@@ -20,7 +20,7 @@ const modelosPorMarca = {
     ],
     "Toyota": [
         "Corolla", "Yaris", "Etios", "Hilux", "SW4", "RAV4", "Camry",
-        "Corolla Cross", "Prius", "Yaris Cross"
+        "Corolla Cross", "Prius", "Yaris Cross", "Supra"
     ],
     "Hyundai": [
         "HB20", "HB20S", "Creta", "Tucson", "Santa Fe", "i30", "Azera",
@@ -36,7 +36,7 @@ const modelosPorMarca = {
     ],
     "Nissan": [
         "March", "Versa", "Kicks", "Frontier", "Sentra", "Altima", "Leaf",
-        "X-Trail"
+        "X-Trail", "Skyline-R32", "Skyline-R33", "Skyline-R34", "350Z", "370Z"
     ],
     "Peugeot": [
         "208", "2008", "308", "3008", "408", "Partner", "Expert", "Boxer",
