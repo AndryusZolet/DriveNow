@@ -134,6 +134,7 @@ $veiculos = $stmt->fetchAll();
                     Veículos Disponíveis
                 </h2>
                 <p class="text-white/70 mt-2">Encontre o veículo perfeito para sua próxima viagem</p>
+            </p>
             </div>
             <a href="../vboard.php" class="border border-white/20 text-white hover:bg-white/20 rounded-xl px-4 py-2 font-medium backdrop-blur-sm bg-white/5 hover:bg-white/10 shadow-md hover:shadow-lg flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 mr-2">
