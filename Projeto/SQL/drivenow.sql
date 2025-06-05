@@ -27,6 +27,10 @@ SET time_zone = "+00:00";
 -- Estrutura da tabela `administrador`
 --
 
+CREATE DATABASE IF NOT EXISTS `drivenow` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+
+USE `drivenow`;
+
 CREATE TABLE `administrador` (
   `id` int(11) NOT NULL,
   `conta_usuario_id` int(11) NOT NULL
