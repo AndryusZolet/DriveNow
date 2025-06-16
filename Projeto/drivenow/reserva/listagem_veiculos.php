@@ -29,17 +29,21 @@ try {
 
 // Construa a consulta SQL condicionalmente
 $stmt = $pdo->prepare(
-    "SELECT v.*, CONCAT(u.primeiro_nome, ' ', u.segundo_nome) AS nome_proprietario
-    FROM veiculo v 
-    LEFT JOIN dono d ON v.dono_id = d.id
-    LEFT JOIN conta_usuario u ON d.conta_usuario_id = u.id
-    WHERE v.disponivel = 1
-    AND v.id NOT IN (
-        SELECT veiculo_id FROM reserva 
-        WHERE status != 'rejeitada' AND status != 'cancelada' AND status != 'finalizada'
-        AND ((CURRENT_DATE() BETWEEN reserva_data AND devolucao_data) 
-            OR (reserva_data > CURRENT_DATE()))
-    )"
+    "SELECT v.*, CONCAT(u.primeiro_nome, ' ', u.segundo_nome) AS nome_proprietario,
+            l.nome_local, c.cidade_nome, e.sigla
+     FROM veiculo v 
+     LEFT JOIN dono d ON v.dono_id = d.id
+     LEFT JOIN conta_usuario u ON d.conta_usuario_id = u.id
+     LEFT JOIN local l ON v.local_id = l.id
+     LEFT JOIN cidade c ON l.cidade_id = c.id
+     LEFT JOIN estado e ON c.estado_id = e.id
+     WHERE v.disponivel = 1
+     AND v.id NOT IN (
+         SELECT veiculo_id FROM reserva 
+         WHERE status != 'rejeitada' AND status != 'cancelada' AND status != 'finalizada'
+         AND ((CURRENT_DATE() BETWEEN reserva_data AND devolucao_data) 
+             OR (reserva_data > CURRENT_DATE()))
+     )"
 );
 $stmt->execute();
 $veiculos = $stmt->fetchAll();
@@ -134,14 +138,24 @@ $veiculos = $stmt->fetchAll();
                     Veículos Disponíveis
                 </h2>
                 <p class="text-white/70 mt-2">Encontre o veículo perfeito para sua próxima viagem</p>
+            </p>
             </div>
-            <a href="../vboard.php" class="border border-white/20 text-white hover:bg-white/20 rounded-xl px-4 py-2 font-medium backdrop-blur-sm bg-white/5 hover:bg-white/10 shadow-md hover:shadow-lg flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 mr-2">
-                    <path d="m12 19-7-7 7-7"></path>
-                    <path d="M19 12H5"></path>
-                </svg>
-                <span>Voltar</span>
-            </a>
+            <div class="flex gap-4">
+                <a href="pesquisa_avancada.php" class="border border-white/20 text-white hover:bg-white/20 rounded-xl px-4 py-2 font-medium backdrop-blur-sm bg-white/5 hover:bg-white/10 shadow-md hover:shadow-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 mr-2">
+                        <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <span>Pesquisa Avaçada</span>
+                </a>
+                <a href="../vboard.php" class="border border-white/20 text-white hover:bg-white/20 rounded-xl px-4 py-2 font-medium backdrop-blur-sm bg-white/5 hover:bg-white/10 shadow-md hover:shadow-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 mr-2">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path>
+                    </svg>
+                    <span>Voltar</span>
+                </a>
+            </div>
         </div>
         
         <?php if (empty($veiculos)): ?>
@@ -233,7 +247,11 @@ $veiculos = $stmt->fetchAll();
                                             <circle cx="12" cy="10" r="3"></circle>
                                         </svg>
                                     </div>
-                                    <span><?= htmlspecialchars($veiculo['nome_local'] ?? 'Local não informado') ?></span>
+                                    <span><?= htmlspecialchars($veiculo['nome_local'] ?? 'Local não informado') ?>
+                                        <?php if (isset($veiculo['cidade_nome'])): ?>
+                                            <span class="text-white/60 text-xs">(<?= htmlspecialchars($veiculo['cidade_nome']) ?>-<?= htmlspecialchars($veiculo['sigla']) ?>)</span>
+                                        <?php endif; ?>
+                                    </span>
                                 </div>
                                 
                                 <div class="flex items-center text-white">

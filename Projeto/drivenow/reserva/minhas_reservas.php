@@ -162,6 +162,10 @@ $reservas = $stmt->fetchAll();
                                             $status = 'Cancelada';
                                             $statusClass = 'bg-yellow-500/20 text-yellow-300 border border-yellow-400/30';
                                             break;
+                                        case 'pago':
+                                            $status = 'Pago - Aguardando Confirmação';
+                                            $statusClass = 'bg-purple-500/20 text-purple-300 border border-purple-400/30';
+                                            break;
                                         case 'confirmada':
                                             if ($now < $inicio) {
                                                 $status = 'Confirmada';

@@ -22,6 +22,99 @@ if (!isset($_GET['reserva']) || !is_numeric($_GET['reserva'])) {
 
 $reservaId = (int)$_GET['reserva'];
 
+// Processar ações de status da reserva (similar ao reservas_recebidas.php)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserva_id']) && isset($_POST['acao'])) {
+    $reservaIdPost = (int)$_POST['reserva_id'];
+    $acao = $_POST['acao'];
+    
+    // Verificar se a reserva ID do POST corresponde à da URL
+    if ($reservaIdPost === $reservaId) {
+        try {
+            // Verificar se o usuário tem permissão para esta ação
+            $stmt = $pdo->prepare("
+                SELECT r.*, v.dono_id, d.conta_usuario_id as proprietario_id
+                FROM reserva r
+                INNER JOIN veiculo v ON r.veiculo_id = v.id
+                INNER JOIN dono d ON v.dono_id = d.id
+                WHERE r.id = ?
+            ");
+            $stmt->execute([$reservaId]);
+            $reservaCheck = $stmt->fetch();
+            
+            if (!$reservaCheck) {
+                throw new Exception('Reserva não encontrada');
+            }
+            
+            $ehProprietario = $reservaCheck['proprietario_id'] === $usuario['id'];
+            $ehLocatario = $reservaCheck['conta_usuario_id'] === $usuario['id'];
+            
+            if (!$ehProprietario && !$ehLocatario) {
+                throw new Exception('Você não tem permissão para esta ação');
+            }
+            
+            $statusAtualizado = null;
+            $mensagemSucesso = '';
+            
+            switch ($acao) {
+                case 'confirmar':
+                    if (!$ehProprietario) {
+                        throw new Exception('Apenas o proprietário pode confirmar reservas');
+                    }
+                    $statusAtualizado = 'confirmada';
+                    $mensagemSucesso = 'Reserva confirmada com sucesso!';
+                    break;
+                    
+                case 'rejeitar':
+                    if (!$ehProprietario) {
+                        throw new Exception('Apenas o proprietário pode rejeitar reservas');
+                    }
+                    $statusAtualizado = 'rejeitada';
+                    $mensagemSucesso = 'Reserva rejeitada com sucesso!';
+                    break;
+                    
+                case 'finalizar':
+                    if (!$ehProprietario) {
+                        throw new Exception('Apenas o proprietário pode finalizar reservas');
+                    }
+                    $statusAtualizado = 'finalizada';
+                    $mensagemSucesso = 'Reserva finalizada com sucesso!';
+                    break;
+                    
+                case 'cancelar':
+                    if (!$ehLocatario) {
+                        throw new Exception('Apenas o locatário pode cancelar reservas');
+                    }
+                    $statusAtualizado = 'cancelada';
+                    $mensagemSucesso = 'Reserva cancelada com sucesso!';
+                    break;
+                    
+                default:
+                    throw new Exception('Ação inválida');
+            }
+            
+            if ($statusAtualizado) {
+                $stmt = $pdo->prepare("UPDATE reserva SET status = ? WHERE id = ?");
+                $stmt->execute([$statusAtualizado, $reservaId]);
+                
+                $_SESSION['notification'] = [
+                    'type' => 'success',
+                    'message' => $mensagemSucesso
+                ];
+            }
+            
+        } catch (Exception $e) {
+            $_SESSION['notification'] = [
+                'type' => 'error',
+                'message' => 'Erro: ' . $e->getMessage()
+            ];
+        }
+        
+        // Redirecionar para evitar reenvio do formulário
+        header("Location: mensagens_conversa.php?reserva={$reservaId}");
+        exit;
+    }
+}
+
 // Verificar se o usuário tem permissão para acessar esta conversa
 // (deve ser o locatário ou o proprietário do veículo)
 $stmt = $pdo->prepare("
@@ -164,6 +257,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mensagem']) && !empty
 // Formatar datas da reserva
 $dataInicio = date('d/m/Y', strtotime($reserva['reserva_data']));
 $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
+
+// Determinar status atual baseado nas datas
+$now = time();
+$inicio = strtotime($reserva['reserva_data']);
+$fim = strtotime($reserva['devolucao_data']);
 ?>
 
 <!DOCTYPE html>
@@ -253,9 +351,96 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
         .animate-spin {
             animation: spin 1s linear infinite;
         }
+
+        /* Estilos para modais */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            border-radius: 1rem;
+            max-width: 90%;
+            width: 450px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white p-4 md:p-8 overflow-x-hidden">
+
+    <!-- Modais de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content backdrop-blur-xl bg-slate-800/90 border subtle-border p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Confirmar Reserva</h3>
+            <p class="text-white/80 mb-6">Você deseja confirmar esta reserva?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelConfirm" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">Cancelar</button>
+                <form id="confirmForm" method="post">
+                    <input type="hidden" name="reserva_id" id="confirmReservaId">
+                    <input type="hidden" name="acao" value="confirmar">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors">Confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="rejectModal" class="modal">
+        <div class="modal-content backdrop-blur-xl bg-slate-800/90 border subtle-border p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Rejeitar Reserva</h3>
+            <p class="text-white/80 mb-6">Você deseja rejeitar esta reserva?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelReject" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">Cancelar</button>
+                <form id="rejectForm" method="post">
+                    <input type="hidden" name="reserva_id" id="rejectReservaId">
+                    <input type="hidden" name="acao" value="rejeitar">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">Rejeitar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="finishModal" class="modal">
+        <div class="modal-content backdrop-blur-xl bg-slate-800/90 border subtle-border p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Finalizar Reserva</h3>
+            <p class="text-white/80 mb-6">Você deseja finalizar esta reserva antecipadamente?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelFinish" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">Cancelar</button>
+                <form id="finishForm" method="post">
+                    <input type="hidden" name="reserva_id" id="finishReservaId">
+                    <input type="hidden" name="acao" value="finalizar">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white transition-colors">Finalizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="cancelModal" class="modal">
+        <div class="modal-content backdrop-blur-xl bg-slate-800/90 border subtle-border p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Cancelar Reserva</h3>
+            <p class="text-white/80 mb-6">Você deseja cancelar esta reserva?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelCancel" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">Voltar</button>
+                <form id="cancelForm" method="post">
+                    <input type="hidden" name="reserva_id" id="cancelReservaId">
+                    <input type="hidden" name="acao" value="cancelar">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">Cancelar Reserva</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div class="fixed top-0 right-0 w-96 h-96 rounded-full bg-indigo-700 opacity-10 blur-3xl -z-10 animate-pulse animate-pulse-15s"></div>
     <div class="fixed bottom-0 left-0 w-80 h-80 rounded-full bg-purple-700 opacity-10 blur-3xl -z-10 animate-pulse animate-pulse-20s"></div>
@@ -456,47 +641,69 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
                 <h2 class="text-xl font-bold mb-4">Ações</h2>
                 
                 <div class="space-y-4">
-                    <?php if ($reserva['status'] === 'pendente' && $ehProprietario): ?>
-                        <a href="../reserva/processar_status.php?id=<?= $reservaId ?>&status=confirmada" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors border border-emerald-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
+                    <?php
+                    // Verificar se a data de início da reserva já passou
+                    $dataReservaPassou = strtotime($reserva['reserva_data']) < time();
+                    
+                    if ((empty($reserva['status']) || $reserva['status'] === 'pendente') && !$dataReservaPassou && $ehProprietario): ?>
+                        <button data-id="<?= $reservaId ?>" class="w-full bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-400/30 rounded-xl px-4 py-2 text-sm font-medium transition-colors confirm-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2 inline-block">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
                             Confirmar Reserva
-                        </a>
-                        <a href="../reserva/processar_status.php?id=<?= $reservaId ?>&status=rejeitada" class="w-full bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-colors border border-red-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
+                        </button>
+                        <button data-id="<?= $reservaId ?>" class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 rounded-xl px-4 py-2 text-sm font-medium transition-colors reject-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2 inline-block">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
                             Rejeitar Reserva
-                        </a>
+                        </button>
+                    <?php elseif ($reserva['status'] === 'confirmada' && $now >= $inicio && $now <= $fim && $ehProprietario): ?>
+                        <button data-id="<?= $reservaId ?>" class="w-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/30 rounded-xl px-4 py-2 text-sm font-medium transition-colors finish-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2 inline-block">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                                <line x1="4" y1="22" x2="4" y2="15"></line>
+                            </svg>
+                            Finalizar Reserva
+                        </button>
                     <?php endif; ?>
                     
-                    <?php if (in_array($reserva['status'], ['pendente', 'confirmada']) && !$ehProprietario): ?>
-                        <a href="../reserva/processar_status.php?id=<?= $reservaId ?>&status=cancelada" class="w-full bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-colors border border-red-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
+                    <?php if ((!isset($reserva['status']) || $reserva['status'] == 'pendente' || $reserva['status'] === null) && !$dataReservaPassou && !$ehProprietario): ?>
+                        <button data-id="<?= $reservaId ?>" class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 rounded-xl px-4 py-2 text-sm font-medium transition-colors cancel-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2 inline-block">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
                             Cancelar Reserva
-                        </a>
+                        </button>
                     <?php endif; ?>
                     
-                    <?php if ($reserva['status'] === 'confirmada' && $reserva['reserva_data'] <= date('Y-m-d') && $ehProprietario): ?>
-                        <a href="../reserva/processar_status.php?id=<?= $reservaId ?>&status=em_andamento" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-colors border border-blue-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
-                            Iniciar Aluguel
-                        </a>
-                    <?php endif; ?>
-                    
-                    <?php if ($reserva['status'] === 'em_andamento' && $ehProprietario): ?>
-                        <a href="../reserva/processar_status.php?id=<?= $reservaId ?>&status=finalizada" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-xl transition-colors border border-indigo-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
-                            Finalizar Aluguel
-                        </a>
-                    <?php endif; ?>
-                    
-                    <a href="../contrato/gerar_contrato.php?reserva=<?= $reservaId ?>" class="w-full border border-white/20 text-white hover:bg-white/20 rounded-xl px-4 py-2 font-medium backdrop-blur-sm bg-white/5 hover:bg-white/10 shadow-md hover:shadow-lg flex items-center justify-center">
-                        Visualizar Contrato
+                    <a href="../reserva/detalhes_reserva.php?id=<?= $reservaId ?>" class="w-full bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 rounded-xl px-4 py-2 text-sm font-medium transition-colors flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        Ver Detalhes da Reserva
                     </a>
                     
-                    <?php if ($reserva['status'] === 'finalizada' && !$ehProprietario): ?>
-                        <a href="../avaliacao/avaliar_veiculo.php?reserva=<?= $reservaId ?>" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-xl transition-colors border border-yellow-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
-                            Avaliar Veículo e Locador
-                        </a>
-                    <?php endif; ?>
-                    
-                    <?php if ($reserva['status'] === 'finalizada' && $ehProprietario): ?>
-                        <a href="../avaliacao/avaliar_locatario.php?reserva=<?= $reservaId ?>" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-xl transition-colors border border-yellow-400/30 px-4 py-2 shadow-md hover:shadow-lg flex items-center justify-center">
-                            Avaliar Locatário
-                        </a>
+                    <?php if ($reserva['status'] === 'finalizada'): ?>
+                        <?php if (!$ehProprietario): ?>
+                            <a href="../avaliacao/avaliar_veiculo.php?reserva=<?= $reservaId ?>" class="w-full bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-400/30 rounded-xl px-4 py-2 text-sm font-medium transition-colors flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+                                </svg>
+                                Avaliar Veículo e Locador
+                            </a>
+                        <?php else: ?>
+                            <a href="../avaliacao/avaliar_locatario.php?reserva=<?= $reservaId ?>" class="w-full bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-400/30 rounded-xl px-4 py-2 text-sm font-medium transition-colors flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+                                </svg>
+                                Avaliar Locatário
+                            </a>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -551,6 +758,87 @@ $dataFim = date('d/m/Y', strtotime($reserva['devolucao_data']));
                 scrollOnNewMessages: true,
                 showNotification: true,
                 isReconnection: pageReloaded
+            });
+            
+            // Funções para manipulação dos modais
+            const confirmModal = document.getElementById('confirmModal');
+            const rejectModal = document.getElementById('rejectModal');
+            const finishModal = document.getElementById('finishModal');
+            const cancelModal = document.getElementById('cancelModal');
+            
+            // Adicionar eventos aos botões de confirmação
+            document.querySelectorAll('.confirm-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('confirmReservaId').value = this.getAttribute('data-id');
+                    confirmModal.style.display = 'flex';
+                });
+            });
+            
+            // Adicionar eventos aos botões de rejeição
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('rejectReservaId').value = this.getAttribute('data-id');
+                    rejectModal.style.display = 'flex';
+                });
+            });
+            
+            // Adicionar eventos aos botões de finalização
+            document.querySelectorAll('.finish-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('finishReservaId').value = this.getAttribute('data-id');
+                    finishModal.style.display = 'flex';
+                });
+            });
+            
+            // Adicionar eventos aos botões de cancelamento
+            document.querySelectorAll('.cancel-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('cancelReservaId').value = this.getAttribute('data-id');
+                    cancelModal.style.display = 'flex';
+                });
+            });
+            
+            // Botões para fechar os modais
+            document.getElementById('cancelConfirm').addEventListener('click', () => {
+                confirmModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancelReject').addEventListener('click', () => {
+                rejectModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancelFinish').addEventListener('click', () => {
+                finishModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancelCancel').addEventListener('click', () => {
+                cancelModal.style.display = 'none';
+            });
+            
+            // Fechar modal ao clicar fora da área do conteúdo
+            window.addEventListener('click', function(event) {
+                if (event.target === confirmModal) {
+                    confirmModal.style.display = 'none';
+                }
+                if (event.target === rejectModal) {
+                    rejectModal.style.display = 'none';
+                }
+                if (event.target === finishModal) {
+                    finishModal.style.display = 'none';
+                }
+                if (event.target === cancelModal) {
+                    cancelModal.style.display = 'none';
+                }
+            });
+            
+            // Fechar modal com a tecla ESC
+            window.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    confirmModal.style.display = 'none';
+                    rejectModal.style.display = 'none';
+                    finishModal.style.display = 'none';
+                    cancelModal.style.display = 'none';
+                }
             });
             
             // Manipular envio de formulário para evitar recarregar a página

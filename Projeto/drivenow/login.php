@@ -150,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="checkbox" name="remember" class="h-4 w-4 text-indigo-500 border-white/30 rounded focus:ring-indigo-400 bg-white/10">
                         <span class="ml-2 text-sm text-white/70">Lembre-me</span>
                     </label>
-                    <a href="#" class="text-sm text-indigo-300 hover:text-indigo-200">Esqueci a senha</a>
+                    <a href="recuperar_senha.php" class="text-sm text-indigo-300 hover:text-indigo-200">Esqueci a senha</a>
                 </div>
 
                 <button type="submit" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-xl transition-colors border border-indigo-400/30 px-4 py-3 shadow-md hover:shadow-lg">

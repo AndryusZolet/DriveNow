@@ -134,14 +134,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$pagamentoId, $status, $usuario['id']]);
             
+            
             // Se o pagamento foi aprovado, atualizar o status da reserva
             if ($status === 'aprovado') {
-                $stmt = $pdo->prepare("UPDATE reserva SET status = 'confirmada' WHERE id = ?");
+                // Modificado: Agora o status fica como 'pago' em vez de 'confirmada'
+                // para que o proprietário possa confirmar posteriormente
+                $stmt = $pdo->prepare("UPDATE reserva SET status = 'pago' WHERE id = ?");
                 $stmt->execute([$reservaId]);
                 
                 $_SESSION['notification'] = [
                     'type' => 'success',
-                    'message' => 'Pagamento aprovado com sucesso! Sua reserva está confirmada.'
+                    'message' => 'Pagamento aprovado com sucesso! Aguardando confirmação do proprietário.'
                 ];
             } else {
                 $_SESSION['notification'] = [

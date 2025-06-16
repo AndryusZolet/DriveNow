@@ -11,7 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -32,16 +31,11 @@ CREATE DATABASE IF NOT EXISTS `drivenow` /*!40100 DEFAULT CHARACTER SET utf8mb4 
 USE `drivenow`;
 
 CREATE TABLE `administrador` (
-  `id` int(11) NOT NULL,
-  `conta_usuario_id` int(11) NOT NULL
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `conta_usuario_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Extraindo dados da tabela `administrador`
---
-
-INSERT INTO `administrador` (`id`, `conta_usuario_id`) VALUES
-(1, 4);
 
 -- --------------------------------------------------------
 
@@ -50,9 +44,10 @@ INSERT INTO `administrador` (`id`, `conta_usuario_id`) VALUES
 --
 
 CREATE TABLE `atributo` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome_atributo` varchar(100) DEFAULT NULL,
-  `descricao` text DEFAULT NULL
+  `descricao` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -63,7 +58,9 @@ CREATE TABLE `atributo` (
 
 CREATE TABLE `atributos_veiculos` (
   `veiculo_id` int(11) NOT NULL,
-  `atributo_id` int(11) NOT NULL
+  `atributo_id` int(11) NOT NULL,
+  PRIMARY KEY (`veiculo_id`,`atributo_id`),
+  KEY `atributo_id` (`atributo_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -73,13 +70,17 @@ CREATE TABLE `atributos_veiculos` (
 --
 
 CREATE TABLE `avaliacao_locatario` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `reserva_id` int(11) NOT NULL,
   `proprietario_id` int(11) NOT NULL COMMENT 'ID do proprietário que faz a avaliação',
   `locatario_id` int(11) NOT NULL COMMENT 'ID do locatário que está sendo avaliado',
   `nota` int(1) NOT NULL CHECK (`nota` between 1 and 5),
   `comentario` text DEFAULT NULL,
-  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp()
+  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reserva_id` (`reserva_id`),
+  KEY `proprietario_id` (`proprietario_id`),
+  KEY `locatario_id` (`locatario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -89,13 +90,17 @@ CREATE TABLE `avaliacao_locatario` (
 --
 
 CREATE TABLE `avaliacao_proprietario` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `reserva_id` int(11) NOT NULL,
   `usuario_id` int(11) NOT NULL COMMENT 'ID do locatário que faz a avaliação',
   `proprietario_id` int(11) NOT NULL COMMENT 'ID do proprietário que está sendo avaliado',
   `nota` int(1) NOT NULL CHECK (`nota` between 1 and 5),
   `comentario` text DEFAULT NULL,
-  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp()
+  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reserva_id` (`reserva_id`),
+  KEY `usuario_id` (`usuario_id`),
+  KEY `proprietario_id` (`proprietario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -105,13 +110,17 @@ CREATE TABLE `avaliacao_proprietario` (
 --
 
 CREATE TABLE `avaliacao_veiculo` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `reserva_id` int(11) NOT NULL,
   `usuario_id` int(11) NOT NULL,
   `veiculo_id` int(11) NOT NULL,
   `nota` int(1) NOT NULL CHECK (`nota` between 1 and 5),
   `comentario` text DEFAULT NULL,
-  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp()
+  `data_avaliacao` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reserva_id` (`reserva_id`),
+  KEY `usuario_id` (`usuario_id`),
+  KEY `veiculo_id` (`veiculo_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -121,13 +130,10 @@ CREATE TABLE `avaliacao_veiculo` (
 --
 
 CREATE TABLE `categoria_veiculo` (
-  `id` int(11) NOT NULL,
-  `categoria` varchar(100) DEFAULT NULL
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `categoria` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Extraindo dados da tabela `categoria_veiculo`
---
 
 INSERT INTO `categoria_veiculo` (`id`, `categoria`) VALUES
 (1, 'Coupé'),
@@ -146,14 +152,12 @@ INSERT INTO `categoria_veiculo` (`id`, `categoria`) VALUES
 --
 
 CREATE TABLE `cidade` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `estado_id` int(11) NOT NULL,
-  `cidade_nome` varchar(100) NOT NULL
+  `cidade_nome` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `estado_id` (`estado_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Extraindo dados da tabela `cidade`
---
 
 INSERT INTO `cidade` (`id`, `estado_id`, `cidade_nome`) VALUES
 (7, 4, 'Manaus'),
@@ -176,7 +180,7 @@ INSERT INTO `cidade` (`id`, `estado_id`, `cidade_nome`) VALUES
 --
 
 CREATE TABLE `conta_usuario` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `is_admin` tinyint(1) NOT NULL DEFAULT 0,
   `primeiro_nome` varchar(50) DEFAULT NULL,
   `segundo_nome` varchar(50) DEFAULT NULL,
@@ -198,18 +202,18 @@ CREATE TABLE `conta_usuario` (
   `media_avaliacao_proprietario` decimal(3,1) DEFAULT NULL,
   `total_avaliacoes_proprietario` int(11) DEFAULT 0,
   `media_avaliacao_locatario` decimal(3,1) DEFAULT NULL,
-  `total_avaliacoes_locatario` int(11) DEFAULT 0
+  `total_avaliacoes_locatario` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `e_mail` (`e_mail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Extraindo dados da tabela `conta_usuario`
---
-
 INSERT INTO `conta_usuario` (`id`, `is_admin`, `primeiro_nome`, `segundo_nome`, `telefone`, `e_mail`, `senha`, `data_de_entrada`, `foto_perfil`, `cpf`, `foto_cnh_frente`, `foto_cnh_verso`, `status_docs`, `data_verificacao`, `admin_verificacao`, `tem_cnh`, `cadastro_completo`, `observacoes_docs`, `mensagens_nao_lidas`, `media_avaliacao_proprietario`, `total_avaliacoes_proprietario`, `media_avaliacao_locatario`, `total_avaliacoes_locatario`) VALUES
-(4, 1, 'Valentin', 'Rojas', '(41) 99781-2602', 'valentin@gmail.com', '$2y$10$v2pibQ5XqxByeDZslhrh6e4MRNUWKbCOTayxbfq14o1cNpXaHRike', '2025-05-07', NULL, '594.635.580-55', 'uploads/user_4/docs/foto_cnh_frente_6823ed28d0954_1747184936.jpg', 'uploads/user_4/docs/foto_cnh_verso_6823ed28d0af8_1747184936.jpg', 'aprovado', '2025-05-13 22:30:45', 4, 1, 1, '', 0, NULL, 0, NULL, 0),
-(5, 0, 'Valentin2', 'Rojas2', '', 'valentin2@gmail.com', '$2y$10$qp07.FdiWhaQIGi3lw2dQuASiI9JAJnwKpkEJ.0/3vpHLUPi7Kg1C', '2025-05-13', NULL, '411.216.650-80', 'uploads/user_5/docs/foto_cnh_frente_68251f40120b9_1747263296.jpg', 'uploads/user_5/docs/foto_cnh_verso_68251f4012416_1747263296.jpg', 'aprovado', '2025-05-14 19:56:17', 4, 1, 1, 'Documentos validados!', 0, NULL, 0, NULL, 0),
-(6, 0, 'Andryus', 'Zolet', '(41) 99796-3268', 'zoletandryus@gmail.com', '$2y$10$UUCGyz8JhL0BqC2s.lSApOPiHWPc9Z/vjawVyzaCbhUGnta3eAYt2', '2025-05-05', NULL, '138.477.099-25', 'uploads/user_6/docs/foto_cnh_frente_683edcbd225da_1748950205.jpg', 'uploads/user_6/docs/foto_cnh_verso_683edcbd26451_1748950205.jpg', 'aprovado', '2025-06-03 08:31:08', 4, 1, 1, 'Documentos validados!', 0, NULL, 0, NULL, 0),
-(7, 0, 'Fernando', 'Lopes', '', 'Fernando@gmail.com', '$2y$10$H/Pn5XbhHkGoEGdcwXQZN..ImoLGzDcgXgURuRi1/r3JELvjIYdWm', '2025-06-03', NULL, '157.412.840-00', 'uploads/user_7/docs/foto_cnh_frente_683ee6022e505_1748952578.jpg', 'uploads/user_7/docs/foto_cnh_verso_683ee60231670_1748952578.jpg', 'aprovado', '2025-06-03 09:10:11', 4, 1, 1, 'Documentos validados!', 0, NULL, 0, NULL, 0);
+(1, 1, 'Andryus', 'Zolet', '(41) 99796-3268', 'zoletandryus@gmail.com', '$2y$10$q7m/RxOCrcZvSi.1SKShC.u3.5DKHyyVQR7Nk3oFgX/9F0.zCm2wa', '2025-05-10', NULL, '138.477.099-25', 'uploads/user_1/docs/foto_cnh_frente_68484ff76d484_1749569527.jpg', 'uploads/user_1/docs/foto_cnh_verso_68484ff76dde1_1749569527.jpg', 'aprovado', '2025-05-10 12:32:16', 1, 1, 1, '', 0, NULL, 0, NULL, 0),
+(2, 0, 'Stuart', 'Capivas', '', 'capivara@gmail.com', '$2y$10$U.zVCHqT.YRRxWpPezMUhO1zLcze44j/aX9xz9mA34uZ15DG8d8ri', '2025-06-10', NULL, '567.372.568-05', 'uploads/user_2/docs/foto_cnh_frente_684851b9eb915_1749569977.jpg', 'uploads/user_2/docs/foto_cnh_verso_684851b9ec0b6_1749569977.jpg', 'aprovado', '2025-06-10 12:40:11', 1, 1, 1, 'Bob Esponja', 0, NULL, 0, NULL, 0),
+(4, 0, 'Scoobert', 'Doo', '', 'scoobydoo@gmail.com', '$2y$10$9OMuyhMBeF4XL60ExWUCEOI3bCy8ZmdrRiS7R.BSYaKckLSsfv9H.', '2025-06-10', NULL, '309.088.147-04', 'uploads/user_4/docs/foto_cnh_frente_684897b3d2961_1749587891.jpg', 'uploads/user_4/docs/foto_cnh_verso_684897b3d327b_1749587891.jpg', 'aprovado', '2025-06-10 17:39:21', 1, 1, 1, 'Biscoito Scooby', 0, NULL, 0, 5.0, 2),
+(5, 0, 'Valentin', 'Rojas', '', 'valentin@gmail.com', '$2y$10$2Enp.jb4mT1ARyMNzGsRLeIW.kpzN65UQn6Va1AA8kjSW3SFqP4ca', '2025-06-10', NULL, '594.635.580-55', 'uploads/user_5/docs/foto_cnh_frente_685021829ace5_1750081922.png', 'uploads/user_5/docs/foto_cnh_verso_685021829b58d_1750081922.png', 'aprovado', '2025-06-16 10:52:21', 1, 1, 1, 'Validado', 0, NULL, 0, NULL, 0),
+(6, 0, 'Norville', 'Rogers', '', 'salsicha@gmail.com', '$2y$10$LBFFy7x.IshlyyJaSEV5R.hi1TYILIDURBmUi6ztFiP1ZxIlPTXS6', '2025-06-11', NULL, '853.243.670-60', 'uploads/user_6/docs/foto_cnh_frente_6849640f26be4_1749640207.jpg', 'uploads/user_6/docs/foto_cnh_verso_6849640f2a79e_1749640207.jpg', 'aprovado', '2025-06-11 08:10:41', 1, 1, 1, 'salsicha', 0, NULL, 0, NULL, 0),
+(7, 0, 'Anakin', 'Skywalker', '', 'darthvader@gmail.com', '$2y$10$8959IB2rAJsNuhePmJvsf.PkTxnUTKShyrYejgutF.CXULbHgYERG', '2025-06-13', NULL, '540.120.230-04', 'uploads/user_7/docs/foto_cnh_frente_685023298c75d_1750082345.jpg', 'uploads/user_7/docs/foto_cnh_verso_685023298d0bd_1750082345.jpg', 'aprovado', '2025-06-16 10:59:41', 1, 1, 1, 'may the 4th be with you', 0, NULL, 0, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -218,17 +222,15 @@ INSERT INTO `conta_usuario` (`id`, `is_admin`, `primeiro_nome`, `segundo_nome`, 
 --
 
 CREATE TABLE `dono` (
-  `id` int(11) NOT NULL,
-  `conta_usuario_id` int(11) DEFAULT NULL
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `conta_usuario_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Extraindo dados da tabela `dono`
---
-
 INSERT INTO `dono` (`id`, `conta_usuario_id`) VALUES
-(1, 4),
-(3, 6);
+(1, 1),
+(2, 5);
 
 -- --------------------------------------------------------
 
@@ -237,14 +239,11 @@ INSERT INTO `dono` (`id`, `conta_usuario_id`) VALUES
 --
 
 CREATE TABLE `estado` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `estado_nome` varchar(100) NOT NULL,
-  `sigla` char(2) DEFAULT NULL
+  `sigla` char(2) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Extraindo dados da tabela `estado`
---
 
 INSERT INTO `estado` (`id`, `estado_nome`, `sigla`) VALUES
 (1, 'Acre', 'AC'),
@@ -283,7 +282,9 @@ INSERT INTO `estado` (`id`, `estado_nome`, `sigla`) VALUES
 
 CREATE TABLE `favoritos` (
   `veiculo_id` int(11) NOT NULL,
-  `conta_usuario_id` int(11) NOT NULL
+  `conta_usuario_id` int(11) NOT NULL,
+  PRIMARY KEY (`veiculo_id`,`conta_usuario_id`),
+  KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -293,13 +294,16 @@ CREATE TABLE `favoritos` (
 --
 
 CREATE TABLE `historico_pagamento` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `pagamento_id` int(11) NOT NULL,
   `status_anterior` varchar(20) DEFAULT NULL,
   `novo_status` varchar(20) NOT NULL,
   `observacao` text DEFAULT NULL,
   `data_alteracao` datetime NOT NULL DEFAULT current_timestamp(),
-  `usuario_id` int(11) DEFAULT NULL
+  `usuario_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pagamento_id` (`pagamento_id`),
+  KEY `usuario_id` (`usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -309,10 +313,12 @@ CREATE TABLE `historico_pagamento` (
 --
 
 CREATE TABLE `imagem` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
   `imagem_url` varchar(255) DEFAULT NULL,
-  `imagem_ordem` int(11) DEFAULT NULL
+  `imagem_ordem` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `veiculo_id` (`veiculo_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -322,17 +328,15 @@ CREATE TABLE `imagem` (
 --
 
 CREATE TABLE `local` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `cidade_id` int(11) NOT NULL,
   `nome_local` varchar(100) NOT NULL,
   `endereco` varchar(255) DEFAULT NULL,
   `complemento` varchar(100) DEFAULT NULL,
-  `cep` varchar(10) DEFAULT NULL
+  `cep` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cidade_id` (`cidade_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Extraindo dados da tabela `local`
---
 
 INSERT INTO `local` (`id`, `cidade_id`, `nome_local`, `endereco`, `complemento`, `cep`) VALUES
 (1, 55, 'Parque Ibirapuera', 'Av. Pedro Álvares Cabral', 'Portão 10', '04094-050'),
@@ -403,13 +407,16 @@ INSERT INTO `local` (`id`, `cidade_id`, `nome_local`, `endereco`, `complemento`,
 --
 
 CREATE TABLE `log_verificacao_docs` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `conta_usuario_id` int(11) NOT NULL,
   `admin_id` int(11) NOT NULL,
   `status_anterior` enum('pendente','verificando','aprovado','rejeitado') DEFAULT NULL,
   `novo_status` enum('pendente','verificando','aprovado','rejeitado') DEFAULT NULL,
   `data_alteracao` datetime DEFAULT current_timestamp(),
-  `observacoes` text DEFAULT NULL
+  `observacoes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `conta_usuario_id` (`conta_usuario_id`),
+  KEY `admin_id` (`admin_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -419,12 +426,15 @@ CREATE TABLE `log_verificacao_docs` (
 --
 
 CREATE TABLE `mensagem` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `reserva_id` int(11) NOT NULL,
   `remetente_id` int(11) NOT NULL,
   `mensagem` text NOT NULL,
   `data_envio` datetime NOT NULL DEFAULT current_timestamp(),
-  `lida` tinyint(1) NOT NULL DEFAULT 0
+  `lida` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `reserva_id` (`reserva_id`),
+  KEY `remetente_id` (`remetente_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -434,7 +444,7 @@ CREATE TABLE `mensagem` (
 --
 
 CREATE TABLE `pagamento` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `reserva_id` int(11) NOT NULL,
   `valor` decimal(10,2) NOT NULL,
   `metodo_pagamento` varchar(50) NOT NULL,
@@ -443,7 +453,9 @@ CREATE TABLE `pagamento` (
   `data_criacao` datetime NOT NULL DEFAULT current_timestamp(),
   `comprovante_url` varchar(255) DEFAULT NULL,
   `codigo_transacao` varchar(100) DEFAULT NULL,
-  `detalhes` text DEFAULT NULL
+  `detalhes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reserva_id` (`reserva_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -453,7 +465,7 @@ CREATE TABLE `pagamento` (
 --
 
 CREATE TABLE `reserva` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `veiculo_id` int(11) DEFAULT NULL,
   `conta_usuario_id` int(11) DEFAULT NULL,
   `reserva_data` date DEFAULT NULL,
@@ -463,16 +475,11 @@ CREATE TABLE `reserva` (
   `taxas_de_limpeza` decimal(10,2) DEFAULT NULL,
   `valor_total` decimal(10,2) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'pendente',
-  `observacoes` text DEFAULT NULL
+  `observacoes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `veiculo_id` (`veiculo_id`),
+  KEY `conta_usuario_id` (`conta_usuario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Extraindo dados da tabela `reserva`
---
-
-INSERT INTO `reserva` (`id`, `veiculo_id`, `conta_usuario_id`, `reserva_data`, `devolucao_data`, `diaria_valor`, `taxas_de_uso`, `taxas_de_limpeza`, `valor_total`, `status`, `observacoes`) VALUES
-(7, 6, 5, '2025-05-15', '2025-05-22', '350.00', '20.00', '30.00', '2500.00', 'rejeitada', 'Teste obs'),
-(8, 6, 5, '2025-05-16', '2025-05-19', '350.00', '20.00', '30.00', '1100.00', 'rejeitada', 'E para fazer uma viagem ate a praia.');
 
 -- --------------------------------------------------------
 
@@ -481,7 +488,7 @@ INSERT INTO `reserva` (`id`, `veiculo_id`, `conta_usuario_id`, `reserva_data`, `
 --
 
 CREATE TABLE `veiculo` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `local_id` int(11) DEFAULT NULL,
   `categoria_veiculo_id` int(11) DEFAULT NULL,
   `dono_id` int(11) DEFAULT NULL,
@@ -499,284 +506,127 @@ CREATE TABLE `veiculo` (
   `preco_diaria` decimal(10,2) NOT NULL DEFAULT 150.00,
   `descricao` text DEFAULT NULL,
   `media_avaliacao` decimal(3,1) DEFAULT NULL,
-  `total_avaliacoes` int(11) DEFAULT 0
+  `total_avaliacoes` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `local_id` (`local_id`),
+  KEY `categoria_veiculo_id` (`categoria_veiculo_id`),
+  KEY `dono_id` (`dono_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Extraindo dados da tabela `veiculo`
---
-
 INSERT INTO `veiculo` (`id`, `local_id`, `categoria_veiculo_id`, `dono_id`, `veiculo_marca`, `veiculo_modelo`, `veiculo_ano`, `veiculo_km`, `veiculo_placa`, `veiculo_cambio`, `veiculo_combustivel`, `veiculo_portas`, `veiculo_acentos`, `veiculo_tracao`, `disponivel`, `preco_diaria`, `descricao`, `media_avaliacao`, `total_avaliacoes`) VALUES
-(6, 13, 2, 1, 'Chevrolet', 'Onix Plus', 2022, 2000, 'ABD2G62', 'Automático', 'Gasolina', 4, 5, 'Dianteira', 1, '350.00', 'Otimo para viagem, veiculo todo revisado!', NULL, 0),
-(7, 44, 1, 1, 'Fiat', 'Uno', 1998, 158900, 'ABC1234', 'Manual', 'Gasolina', 2, 4, 'Dianteira', 0, '50.00', 'Veiculo quase morrendo mas ainda funciona e esta barato para alugar!', NULL, 0),
-(8, 11, 4, 3, 'Honda', 'Civic Type R', 2000, 130000, 'CAP1V45', 'Manual', 'Gasolina', 2, 4, 'Dianteira', 1, '500.00', 'O Honda Civic Type R é uma série de modelos hot hatchback e sedã esportivo baseados no Civic, desenvolvido e produzido pela Honda desde setembro de 1997. O primeiro Civic Type R foi o terceiro modelo a receber o emblema Type R da Honda. As versões Type R do Civic normalmente apresentam uma carroceria iluminada e enrijecida, motor especialmente ajustado e freios e chassi atualizados, e são oferecidos apenas em transmissão manual de cinco ou seis velocidades. Como outros modelos Type R, o vermelho é usado no fundo do emblema Honda para distingui-lo de outros modelos.', NULL, 0),
-(9, 12, 3, 3, 'Mitsubishi', 'Eclipse Cross', 2023, 54000, 'REN4T00', 'Automático', 'Gasolina', 4, 5, 'Dianteira', 1, '450.00', 'O Mitsubishi Eclipse Cross é um utilitário esportivo crossover de porte médio produzido pela Mitsubishi Motors desde 2017. A versão de produção foi apresentada no Salão Internacional do Automóvel de Genebra em março de 2017. Atualmente o veículo é fabricado no Japão.', NULL, 0);
+(1, 11, 1, 1, 'Toyota', 'Supra', 2000, 35897, 'ZOL3T11', 'Manual', 'Gasolina', 2, 4, 'Traseira', 1, 450.00, 'Toyota Supra MK4 3.0i Turbo', NULL, 0),
+(2, 1, 8, 1, 'Mercedes-Benz', 'Sprinter 515', 2010, 89032, 'SCO0B17', 'Automático', 'Gasolina', 3, 3, 'Dianteira', 1, 150.00, 'prefeita para uma maquina de mistério', NULL, 0),
+(3, 6, 4, 1, 'Honda', 'Civic Type R', 2001, 94034, 'CAP1V45', 'Manual', 'Gasolina', 2, 5, 'Dianteira', 1, 200.00, 'O Honda Civic Type R é uma série de modelos hot hatchback esportivo', NULL, 0),
+(4, 44, 3, 2, 'Audi', 'Q5', 2018, 54879, 'VAL3T14', 'Automático', 'Gasolina', 4, 5, 'Dianteira', 1, 389.00, '', NULL, 0);
 
---
--- Índices para tabelas despejadas
---
 
+-- --------------------------------------------------------
 --
--- Índices para tabela `administrador`
+-- VIEWS DO SISTEMA
 --
-ALTER TABLE `administrador`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `conta_usuario_id` (`conta_usuario_id`);
+-- --------------------------------------------------------
+--
+-- View para veículos disponíveis com informações completas
+--
+CREATE VIEW vw_veiculos_disponiveis AS
+SELECT 
+    v.id,
+    v.veiculo_marca,
+    v.veiculo_modelo,
+    v.veiculo_ano,
+    v.preco_diaria,
+    v.media_avaliacao,
+    v.total_avaliacoes,
+    v.descricao,
+    cv.categoria,
+    l.nome_local,
+    l.endereco,
+    c.cidade_nome,
+    e.estado_nome,
+    e.sigla as estado_sigla,
+    CONCAT(cu.primeiro_nome, ' ', cu.segundo_nome) as proprietario_nome,
+    cu.media_avaliacao_proprietario
+FROM veiculo v
+JOIN categoria_veiculo cv ON v.categoria_veiculo_id = cv.id
+JOIN local l ON v.local_id = l.id
+JOIN cidade c ON l.cidade_id = c.id
+JOIN estado e ON c.estado_id = e.id
+JOIN dono d ON v.dono_id = d.id
+JOIN conta_usuario cu ON d.conta_usuario_id = cu.id
+WHERE v.disponivel = 1;
+--
+-- View para resumo de reservas
+--
+CREATE VIEW vw_reservas_completas AS
+SELECT 
+    r.id,
+    r.status,
+    r.reserva_data,
+    r.devolucao_data,
+    r.valor_total,
+    CONCAT(cu.primeiro_nome, ' ', cu.segundo_nome) as locatario_nome,
+    cu.e_mail as locatario_email,
+    CONCAT(v.veiculo_marca, ' ', v.veiculo_modelo, ' ', v.veiculo_ano) as veiculo_completo,
+    l.nome_local,
+    c.cidade_nome,
+    CONCAT(prop.primeiro_nome, ' ', prop.segundo_nome) as proprietario_nome
+FROM reserva r
+JOIN conta_usuario cu ON r.conta_usuario_id = cu.id
+JOIN veiculo v ON r.veiculo_id = v.id
+JOIN local l ON v.local_id = l.id
+JOIN cidade c ON l.cidade_id = c.id
+JOIN dono d ON v.dono_id = d.id
+JOIN conta_usuario prop ON d.conta_usuario_id = prop.id;
+--
+-- View para estatísticas de usuários
+--
+CREATE VIEW vw_stats_usuarios AS
+SELECT 
+    cu.id,
+    CONCAT(cu.primeiro_nome, ' ', cu.segundo_nome) as nome_completo,
+    cu.e_mail,
+    cu.status_docs,
+    cu.tem_cnh,
+    COUNT(DISTINCT r.id) as total_reservas,
+    COUNT(DISTINCT v.id) as total_veiculos_cadastrados,
+    COALESCE(cu.media_avaliacao_locatario, 0) as media_locatario,
+    COALESCE(cu.media_avaliacao_proprietario, 0) as media_proprietario
+FROM conta_usuario cu
+LEFT JOIN reserva r ON cu.id = r.conta_usuario_id
+LEFT JOIN dono d ON cu.id = d.conta_usuario_id
+LEFT JOIN veiculo v ON d.id = v.dono_id
+WHERE cu.is_admin = 0
+GROUP BY cu.id;
+--
+-- View para veículos por categoria e localização
+--
+CREATE VIEW vw_veiculos_por_categoria AS
+SELECT 
+    cv.categoria,
+    e.estado_nome,
+    c.cidade_nome,
+    COUNT(v.id) as total_veiculos,
+    AVG(v.preco_diaria) as preco_medio,
+    COUNT(CASE WHEN v.disponivel = 1 THEN 1 END) as disponiveis
+FROM veiculo v
+JOIN categoria_veiculo cv ON v.categoria_veiculo_id = cv.id
+JOIN local l ON v.local_id = l.id
+JOIN cidade c ON l.cidade_id = c.id
+JOIN estado e ON c.estado_id = e.id
+GROUP BY cv.categoria, e.estado_nome, c.cidade_nome;
+--
+-- View para dashboard administrativo
+--
+CREATE VIEW vw_dashboard_admin AS
+SELECT 
+    (SELECT COUNT(*) FROM conta_usuario WHERE is_admin = 0) as total_usuarios,
+    (SELECT COUNT(*) FROM veiculo) as total_veiculos,
+    (SELECT COUNT(*) FROM reserva) as total_reservas,
+    (SELECT COUNT(*) FROM conta_usuario WHERE status_docs = 'pendente') as docs_pendentes,
+    (SELECT SUM(valor_total) FROM reserva WHERE status = 'confirmada') as receita_total,
+    (SELECT COUNT(*) FROM reserva WHERE status = 'pendente') as reservas_pendentes;
 
---
--- Índices para tabela `atributo`
---
-ALTER TABLE `atributo`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices para tabela `atributos_veiculos`
---
-ALTER TABLE `atributos_veiculos`
-  ADD PRIMARY KEY (`veiculo_id`,`atributo_id`),
-  ADD KEY `atributo_id` (`atributo_id`);
-
---
--- Índices para tabela `avaliacao_locatario`
---
-ALTER TABLE `avaliacao_locatario`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `reserva_id` (`reserva_id`),
-  ADD KEY `proprietario_id` (`proprietario_id`),
-  ADD KEY `locatario_id` (`locatario_id`);
-
---
--- Índices para tabela `avaliacao_proprietario`
---
-ALTER TABLE `avaliacao_proprietario`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `reserva_id` (`reserva_id`),
-  ADD KEY `usuario_id` (`usuario_id`),
-  ADD KEY `proprietario_id` (`proprietario_id`);
-
---
--- Índices para tabela `avaliacao_veiculo`
---
-ALTER TABLE `avaliacao_veiculo`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `reserva_id` (`reserva_id`),
-  ADD KEY `usuario_id` (`usuario_id`),
-  ADD KEY `veiculo_id` (`veiculo_id`);
-
---
--- Índices para tabela `categoria_veiculo`
---
-ALTER TABLE `categoria_veiculo`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices para tabela `cidade`
---
-ALTER TABLE `cidade`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `estado_id` (`estado_id`);
-
---
--- Índices para tabela `conta_usuario`
---
-ALTER TABLE `conta_usuario`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `e_mail` (`e_mail`);
-
---
--- Índices para tabela `dono`
---
-ALTER TABLE `dono`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `conta_usuario_id` (`conta_usuario_id`);
-
---
--- Índices para tabela `estado`
---
-ALTER TABLE `estado`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices para tabela `favoritos`
---
-ALTER TABLE `favoritos`
-  ADD PRIMARY KEY (`veiculo_id`,`conta_usuario_id`),
-  ADD KEY `conta_usuario_id` (`conta_usuario_id`);
-
---
--- Índices para tabela `historico_pagamento`
---
-ALTER TABLE `historico_pagamento`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pagamento_id` (`pagamento_id`),
-  ADD KEY `usuario_id` (`usuario_id`);
-
---
--- Índices para tabela `imagem`
---
-ALTER TABLE `imagem`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `veiculo_id` (`veiculo_id`);
-
---
--- Índices para tabela `local`
---
-ALTER TABLE `local`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `cidade_id` (`cidade_id`);
-
---
--- Índices para tabela `log_verificacao_docs`
---
-ALTER TABLE `log_verificacao_docs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `conta_usuario_id` (`conta_usuario_id`),
-  ADD KEY `admin_id` (`admin_id`);
-
---
--- Índices para tabela `mensagem`
---
-ALTER TABLE `mensagem`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `reserva_id` (`reserva_id`),
-  ADD KEY `remetente_id` (`remetente_id`);
-
---
--- Índices para tabela `pagamento`
---
-ALTER TABLE `pagamento`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `reserva_id` (`reserva_id`);
-
---
--- Índices para tabela `reserva`
---
-ALTER TABLE `reserva`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `veiculo_id` (`veiculo_id`),
-  ADD KEY `conta_usuario_id` (`conta_usuario_id`);
-
---
--- Índices para tabela `veiculo`
---
-ALTER TABLE `veiculo`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `local_id` (`local_id`),
-  ADD KEY `categoria_veiculo_id` (`categoria_veiculo_id`),
-  ADD KEY `dono_id` (`dono_id`);
-
---
--- AUTO_INCREMENT de tabelas despejadas
---
-
---
--- AUTO_INCREMENT de tabela `administrador`
---
-ALTER TABLE `administrador`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `atributo`
---
-ALTER TABLE `atributo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `avaliacao_locatario`
---
-ALTER TABLE `avaliacao_locatario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `avaliacao_proprietario`
---
-ALTER TABLE `avaliacao_proprietario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `avaliacao_veiculo`
---
-ALTER TABLE `avaliacao_veiculo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `categoria_veiculo`
---
-ALTER TABLE `categoria_veiculo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT de tabela `cidade`
---
-ALTER TABLE `cidade`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
-
---
--- AUTO_INCREMENT de tabela `conta_usuario`
---
-ALTER TABLE `conta_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT de tabela `dono`
---
-ALTER TABLE `dono`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `estado`
---
-ALTER TABLE `estado`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
-
---
--- AUTO_INCREMENT de tabela `historico_pagamento`
---
-ALTER TABLE `historico_pagamento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `imagem`
---
-ALTER TABLE `imagem`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `local`
---
-ALTER TABLE `local`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
-
---
--- AUTO_INCREMENT de tabela `log_verificacao_docs`
---
-ALTER TABLE `log_verificacao_docs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `mensagem`
---
-ALTER TABLE `mensagem`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `pagamento`
---
-ALTER TABLE `pagamento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `reserva`
---
-ALTER TABLE `reserva`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT de tabela `veiculo`
---
-ALTER TABLE `veiculo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
+-- --------------------------------------------------------
 --
 -- Restrições para despejos de tabelas
 --
@@ -838,6 +688,12 @@ ALTER TABLE `historico_pagamento`
   ADD CONSTRAINT `historico_pagamento_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE SET NULL;
 
 --
+-- Limitadores para a tabela `imagem`
+--
+ALTER TABLE `imagem`
+  ADD CONSTRAINT `imagem_ibfk_1` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculo` (`id`) ON DELETE CASCADE;
+
+--
 -- Limitadores para a tabela `local`
 --
 ALTER TABLE `local`
@@ -862,6 +718,29 @@ ALTER TABLE `mensagem`
 --
 ALTER TABLE `pagamento`
   ADD CONSTRAINT `pagamento_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reserva` (`id`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `reserva`
+--
+ALTER TABLE `reserva`
+  ADD CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculo` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`conta_usuario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE SET NULL;
+
+--
+-- Limitadores para a tabela `veiculo`
+--
+ALTER TABLE `veiculo`
+  ADD CONSTRAINT `veiculo_ibfk_1` FOREIGN KEY (`local_id`) REFERENCES `local` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `veiculo_ibfk_2` FOREIGN KEY (`categoria_veiculo_id`) REFERENCES `categoria_veiculo` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `veiculo_ibfk_3` FOREIGN KEY (`dono_id`) REFERENCES `dono` (`id`) ON DELETE SET NULL;
+
+--
+-- Limitadores para a tabela `favoritos`
+--
+ALTER TABLE `favoritos`
+  ADD CONSTRAINT `favoritos_ibfk_1` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculo` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `favoritos_ibfk_2` FOREIGN KEY (`conta_usuario_id`) REFERENCES `conta_usuario` (`id`) ON DELETE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

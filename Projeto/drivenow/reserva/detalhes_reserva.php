@@ -421,9 +421,20 @@ $valorTotal = $valorDiarias + $reserva['taxas_de_uso'] + $reserva['taxas_de_limp
                     </svg>
                     Mensagens
                 </a>
-                
+
+                <a href="../contrato/gerar_contrato.php?reserva=<?= $reservaId ?>" class="bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 inline-block">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    Visualizar Contrato
+                </a>
+
                 <?php if ($reserva['status'] === 'finalizada' || ($reserva['status'] === 'confirmada' && $now > $fim)): ?>
-                <a href="../avaliacao/avaliar_locatario.php?reserva_id=<?= $reserva['id'] ?>" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-400/30 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                <a href="../avaliacao/avaliar_locatario.php?reserva=<?= $reservaId ?>" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-400/30 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 inline-block">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
@@ -447,6 +458,17 @@ $valorTotal = $valorDiarias + $reserva['taxas_de_uso'] + $reserva['taxas_de_limp
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
                     Mensagens
+                </a>
+
+                <a href="../contrato/gerar_contrato.php?reserva=<?= $reservaId ?>" class="bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 inline-block">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    Visualizar Contrato
                 </a>
                 
                 <?php if (empty($reserva['status']) || $reserva['status'] === 'pendente'): ?>
@@ -472,14 +494,14 @@ $valorTotal = $valorDiarias + $reserva['taxas_de_uso'] + $reserva['taxas_de_limp
                 <?php endif; ?>
                 
                 <?php if ($reserva['status'] === 'finalizada' || ($reserva['status'] === 'confirmada' && $now > $fim)): ?>
-                <a href="../avaliacao/avaliar_veiculo.php?reserva_id=<?= $reserva['id'] ?>" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-400/30 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                <a href="../avaliacao/avaliar_veiculo.php?reserva=<?= $reservaId ?>" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-400/30 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 inline-block">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
                     Avaliar Veículo
                 </a>
                 
-                <a href="../avaliacao/avaliar_proprietario.php?reserva_id=<?= $reserva['id'] ?>" class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-400/30 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                <a href="../avaliacao/avaliar_veiculo.php?reserva=<?= $reservaId ?>" class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-400/30 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 inline-block">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>

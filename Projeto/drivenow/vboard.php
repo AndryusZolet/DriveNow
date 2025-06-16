@@ -109,13 +109,6 @@ $reservasAtivas = $stmt->fetchColumn();
             </h2>
             <p class="text-white/70 mt-2 flex flex-wrap gap-3 items-center">
                 Gerencie suas reservas e veículos com facilidade
-                <a href="reserva/pesquisa_avancada.php" class="mt-1 md:mt-0 inline-flex items-center gap-1 text-sm font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 rounded-xl px-3 py-1 hover:bg-indigo-500/30 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.3-4.3"/>
-                    </svg>
-                    Pesquisa Avançada
-                </a>
             </p>
         </div>
 

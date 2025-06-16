@@ -16,10 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $erro = 'E-mail inválido.';
         } else {
-            // Aqui você implementaria a lógica para enviar o e-mail de recuperação
-            // Por exemplo: enviarEmailRecuperacao($email);
-            
-            // Simulamos que encontrou o e-mail
+
             $sucesso = 'Se o e-mail estiver cadastrado, você receberá um link para redefinir sua senha.';
             $mostrarFormRedefinicao = true; // Mostra o formulário de redefinição
             $_SESSION['email_redefinicao'] = $email; // Armazena o email na sessão
@@ -35,18 +32,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = 'A nova senha é obrigatória.';
         } elseif ($novaSenha !== $confirmarSenha) {
             $erro = 'As senhas não coincidem.';
-        } elseif (mb_strlen($novaSenha) < 6) {
-            $erro = 'A senha deve ter pelo menos 6 caracteres.';
+        } elseif (mb_strlen($novaSenha) < 5) {
+            $erro = 'A senha deve ter pelo menos 5 caracteres.';
         } else {
-            // Aqui você implementaria a lógica para atualizar a senha no banco de dados
-            // Por exemplo: atualizarSenha($email, $novaSenha);
-            
-            $sucesso = 'Senha redefinida com sucesso! Você já pode fazer login com sua nova senha.';
-            $mostrarFormRedefinicao = false;
-            unset($_SESSION['email_redefinicao']);
-            
-            // Redireciona para login após 3 segundos
-            header("Refresh: 3; url=login.php");
+            try {
+                // Hash da nova senha
+                $senhaHash = password_hash($novaSenha, PASSWORD_DEFAULT);
+                
+                // Atualiza a senha no banco de dados
+                $stmt = $pdo->prepare("UPDATE conta_usuario SET senha = :senha WHERE e_mail = :email");
+                $resultado = $stmt->execute([
+                    'senha' => $senhaHash,
+                    'email' => $email
+                ]);
+                
+                if ($resultado) {
+                    $sucesso = 'Senha redefinida com sucesso! Você já pode fazer login com sua nova senha.';
+                    $mostrarFormRedefinicao = false;
+                    unset($_SESSION['email_redefinicao']);
+                    
+                    header("Refresh: 3; url=login.php");
+                } else {
+                    $erro = 'Ocorreu um erro ao atualizar sua senha. Tente novamente.';
+                }
+            } catch (PDOException $e) {
+                error_log("Erro na redefinição de senha: " . $e->getMessage());
+                $erro = 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.';
+            }
         }
     }
 }

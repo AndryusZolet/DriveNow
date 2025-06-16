@@ -133,6 +133,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET)) {
         $filtros[] = "v.veiculo_acentos >= ?";
         $parametros[] = $_GET['assentos'];
     }
+
+    // Filtro por faixa de preço
+    if (!empty($_GET['preco_range']) && $_GET['preco_range'] != 'todos') {
+        list($preco_min_range, $preco_max_range) = explode('-', $_GET['preco_range']);
+        $filtros[] = "v.preco_diaria >= ? AND v.preco_diaria <= ?";
+        $parametros[] = $preco_min_range;
+        $parametros[] = $preco_max_range;
+    }
+    
+    // Filtro por estado
+    if (!empty($_GET['estado']) && $_GET['estado'] != 'todos') {
+        $filtros[] = "e.sigla = ?";
+        $parametros[] = $_GET['estado'];
+    }
 }
 
 // Adicionar os filtros à consulta SQL
@@ -212,7 +226,7 @@ $veiculos = $stmt->fetchAll();
     <main class="container mx-auto px-4">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold">Pesquisa Avançada</h1>
-            <a href="../vboard.php" class="border border-white/20 text-white hover:bg-white/20 rounded-xl px-4 py-2 font-medium backdrop-blur-sm bg-white/5 hover:bg-white/10 shadow-md hover:shadow-lg flex items-center gap-2">
+            <a href="./listagem_veiculos.php" class="border border-white/20 text-white hover:bg-white/20 rounded-xl px-4 py-2 font-medium backdrop-blur-sm bg-white/5 hover:bg-white/10 shadow-md hover:shadow-lg flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
                     <path d="m15 18-6-6 6-6"/>
                 </svg>
@@ -354,6 +368,55 @@ $veiculos = $stmt->fetchAll();
                             <option value="4" <?= (isset($_GET['assentos']) && $_GET['assentos'] == '4') ? 'selected' : '' ?>>4 ou mais</option>
                             <option value="5" <?= (isset($_GET['assentos']) && $_GET['assentos'] == '5') ? 'selected' : '' ?>>5 ou mais</option>
                             <option value="7" <?= (isset($_GET['assentos']) && $_GET['assentos'] == '7') ? 'selected' : '' ?>>7 ou mais</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Preço - Modificado para incluir faixas pré-definidas -->
+                    <div class="space-y-2">
+                        <label for="preco_range" class="block text-white/90 font-medium">Faixa de Preço</label>
+                        <select id="preco_range" name="preco_range" class="w-full bg-white/5 border subtle-border rounded-xl h-10 px-3 focus:ring-2 focus:ring-indigo-500 focus:border-none outline-none text-white">
+                            <option value="todos">Qualquer preço</option>
+                            <option value="0-100" <?= (isset($_GET['preco_range']) && $_GET['preco_range'] == '0-100') ? 'selected' : '' ?>>Até R$ 100</option>
+                            <option value="100-200" <?= (isset($_GET['preco_range']) && $_GET['preco_range'] == '100-200') ? 'selected' : '' ?>>R$ 100 - R$ 200</option>
+                            <option value="200-300" <?= (isset($_GET['preco_range']) && $_GET['preco_range'] == '200-300') ? 'selected' : '' ?>>R$ 200 - R$ 300</option>
+                            <option value="300-500" <?= (isset($_GET['preco_range']) && $_GET['preco_range'] == '300-500') ? 'selected' : '' ?>>R$ 300 - R$ 500</option>
+                            <option value="500-1000" <?= (isset($_GET['preco_range']) && $_GET['preco_range'] == '500-1000') ? 'selected' : '' ?>>R$ 500 - R$ 1.000</option>
+                            <option value="1000" <?= (isset($_GET['preco_range']) && $_GET['preco_range'] == '1000') ? 'selected' : '' ?>>Acima de R$ 1.000</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Estado - Novo filtro -->
+                    <div class="space-y-2">
+                        <label for="estado" class="block text-white/90 font-medium">Estado (UF)</label>
+                        <select id="estado" name="estado" class="w-full bg-white/5 border subtle-border rounded-xl h-10 px-3 focus:ring-2 focus:ring-indigo-500 focus:border-none outline-none text-white">
+                            <option value="todos">Todos os estados</option>
+                            <option value="AC" <?= (isset($_GET['estado']) && $_GET['estado'] == 'AC') ? 'selected' : '' ?>>Acre (AC)</option>
+                            <option value="AL" <?= (isset($_GET['estado']) && $_GET['estado'] == 'AL') ? 'selected' : '' ?>>Alagoas (AL)</option>
+                            <option value="AP" <?= (isset($_GET['estado']) && $_GET['estado'] == 'AP') ? 'selected' : '' ?>>Amapá (AP)</option>
+                            <option value="AM" <?= (isset($_GET['estado']) && $_GET['estado'] == 'AM') ? 'selected' : '' ?>>Amazonas (AM)</option>
+                            <option value="BA" <?= (isset($_GET['estado']) && $_GET['estado'] == 'BA') ? 'selected' : '' ?>>Bahia (BA)</option>
+                            <option value="CE" <?= (isset($_GET['estado']) && $_GET['estado'] == 'CE') ? 'selected' : '' ?>>Ceará (CE)</option>
+                            <option value="DF" <?= (isset($_GET['estado']) && $_GET['estado'] == 'DF') ? 'selected' : '' ?>>Distrito Federal (DF)</option>
+                            <option value="ES" <?= (isset($_GET['estado']) && $_GET['estado'] == 'ES') ? 'selected' : '' ?>>Espírito Santo (ES)</option>
+                            <option value="GO" <?= (isset($_GET['estado']) && $_GET['estado'] == 'GO') ? 'selected' : '' ?>>Goiás (GO)</option>
+                            <option value="MA" <?= (isset($_GET['estado']) && $_GET['estado'] == 'MA') ? 'selected' : '' ?>>Maranhão (MA)</option>
+                            <option value="MT" <?= (isset($_GET['estado']) && $_GET['estado'] == 'MT') ? 'selected' : '' ?>>Mato Grosso (MT)</option>
+                            <option value="MS" <?= (isset($_GET['estado']) && $_GET['estado'] == 'MS') ? 'selected' : '' ?>>Mato Grosso do Sul (MS)</option>
+                            <option value="MG" <?= (isset($_GET['estado']) && $_GET['estado'] == 'MG') ? 'selected' : '' ?>>Minas Gerais (MG)</option>
+                            <option value="PA" <?= (isset($_GET['estado']) && $_GET['estado'] == 'PA') ? 'selected' : '' ?>>Pará (PA)</option>
+                            <option value="PB" <?= (isset($_GET['estado']) && $_GET['estado'] == 'PB') ? 'selected' : '' ?>>Paraíba (PB)</option>
+                            <option value="PR" <?= (isset($_GET['estado']) && $_GET['estado'] == 'PR') ? 'selected' : '' ?>>Paraná (PR)</option>
+                            <option value="PE" <?= (isset($_GET['estado']) && $_GET['estado'] == 'PE') ? 'selected' : '' ?>>Pernambuco (PE)</option>
+                            <option value="PI" <?= (isset($_GET['estado']) && $_GET['estado'] == 'PI') ? 'selected' : '' ?>>Piauí (PI)</option>
+                            <option value="RJ" <?= (isset($_GET['estado']) && $_GET['estado'] == 'RJ') ? 'selected' : '' ?>>Rio de Janeiro (RJ)</option>
+                            <option value="RN" <?= (isset($_GET['estado']) && $_GET['estado'] == 'RN') ? 'selected' : '' ?>>Rio Grande do Norte (RN)</option>
+                            <option value="RS" <?= (isset($_GET['estado']) && $_GET['estado'] == 'RS') ? 'selected' : '' ?>>Rio Grande do Sul (RS)</option>
+                            <option value="RO" <?= (isset($_GET['estado']) && $_GET['estado'] == 'RO') ? 'selected' : '' ?>>Rondônia (RO)</option>
+                            <option value="RR" <?= (isset($_GET['estado']) && $_GET['estado'] == 'RR') ? 'selected' : '' ?>>Roraima (RR)</option>
+                            <option value="SC" <?= (isset($_GET['estado']) && $_GET['estado'] == 'SC') ? 'selected' : '' ?>>Santa Catarina (SC)</option>
+                            <option value="SP" <?= (isset($_GET['estado']) && $_GET['estado'] == 'SP') ? 'selected' : '' ?>>São Paulo (SP)</option>
+                            <option value="SE" <?= (isset($_GET['estado']) && $_GET['estado'] == 'SE') ? 'selected' : '' ?>>Sergipe (SE)</option>
+                            <option value="TO" <?= (isset($_GET['estado']) && $_GET['estado'] == 'TO') ? 'selected' : '' ?>>Tocantins (TO)</option>
                         </select>
                     </div>
                 </div>

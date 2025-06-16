@@ -70,7 +70,7 @@ $query = "SELECT r.*, v.veiculo_marca, v.veiculo_modelo, v.veiculo_placa,
 switch ($aba) {
     case 'pendentes':
         // Apenas mostrar reservas pendentes cujas datas ainda não passaram
-        $query .= " AND (r.status IS NULL OR r.status = 'pendente') AND r.reserva_data > CURRENT_DATE()";
+        $query .= " AND (r.status = 'pendente' OR r.status = 'pago') AND r.reserva_data >= CURRENT_DATE()";
         break;
     case 'confirmadas':
         $query .= " AND r.status = 'confirmada' AND r.devolucao_data >= CURRENT_DATE()";
@@ -126,9 +126,80 @@ $reservas = $stmt->fetchAll();
             border-color: rgba(139, 92, 246, 0.5);
             color: white;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            border-radius: 1rem;
+            max-width: 90%;
+            width: 450px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white p-4 md:p-8 overflow-x-hidden">
+
+    <!-- Modais de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content backdrop-blur-xl bg-slate-800/90 border subtle-border p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Confirmar Reserva</h3>
+            <p class="text-white/80 mb-6">Você deseja confirmar esta reserva?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelConfirm" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">Cancelar</button>
+                <form id="confirmForm" method="post">
+                    <input type="hidden" name="reserva_id" id="confirmReservaId">
+                    <input type="hidden" name="acao" value="confirmar">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors">Confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="rejectModal" class="modal">
+        <div class="modal-content backdrop-blur-xl bg-slate-800/90 border subtle-border p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Rejeitar Reserva</h3>
+            <p class="text-white/80 mb-6">Você deseja rejeitar esta reserva?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelReject" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">Cancelar</button>
+                <form id="rejectForm" method="post">
+                    <input type="hidden" name="reserva_id" id="rejectReservaId">
+                    <input type="hidden" name="acao" value="rejeitar">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">Rejeitar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="finishModal" class="modal">
+        <div class="modal-content backdrop-blur-xl bg-slate-800/90 border subtle-border p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Finalizar Reserva</h3>
+            <p class="text-white/80 mb-6">Você deseja finalizar esta reserva antecipadamente?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelFinish" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">Cancelar</button>
+                <form id="finishForm" method="post">
+                    <input type="hidden" name="reserva_id" id="finishReservaId">
+                    <input type="hidden" name="acao" value="finalizar">
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white transition-colors">Finalizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div class="fixed top-0 right-0 w-96 h-96 rounded-full bg-indigo-700 opacity-10 blur-3xl -z-10 animate-pulse animate-pulse-15s"></div>
     <div class="fixed bottom-0 left-0 w-80 h-80 rounded-full bg-purple-700 opacity-10 blur-3xl -z-10 animate-pulse animate-pulse-20s"></div>
@@ -244,8 +315,11 @@ $reservas = $stmt->fetchAll();
                             
                             // Definir status e classe com base no status do banco ou datas
                             if (!empty($reserva['status'])) {
-                                $status = ucfirst($reserva['status']);
-                                if ($reserva['status'] === 'confirmada') {
+                                // Adicionar a identificação do status 'pago'
+                                if ($reserva['status'] === 'pago') {
+                                    $status = 'Pago';
+                                    $statusClass = 'bg-purple-500/20 text-purple-300 border border-purple-400/30';
+                                } else if ($reserva['status'] === 'confirmada') {
                                     if ($now >= $inicio && $now <= $fim) {
                                         $status = 'Em Andamento';
                                         $statusClass = 'bg-yellow-500/20 text-yellow-300 border border-yellow-400/30';
@@ -257,10 +331,13 @@ $reservas = $stmt->fetchAll();
                                         $statusClass = 'bg-green-500/20 text-green-300 border border-green-400/30';
                                     }
                                 } elseif ($reserva['status'] === 'rejeitada') {
+                                    $status = 'Rejeitada';
                                     $statusClass = 'bg-red-500/20 text-red-300 border border-red-400/30';
                                 } elseif ($reserva['status'] === 'finalizada') {
+                                    $status = 'Finalizada';
                                     $statusClass = 'bg-gray-500/20 text-gray-300 border border-gray-400/30';
                                 } else {
+                                    $status = 'Pendente';
                                     $statusClass = 'bg-blue-500/20 text-blue-300 border border-blue-400/30';
                                 }
                             } else {
@@ -270,7 +347,7 @@ $reservas = $stmt->fetchAll();
                             ?>
                             <tr class="hover:bg-white/5 transition-colors">
                                 <td class="px-4 py-4">
-                                    <div class="flex flex-col">
+                                    <div class="flex flex-gap-2">
                                         <span class="font-medium text-white">
                                             <?= htmlspecialchars($reserva['veiculo_marca']) ?> <?= htmlspecialchars($reserva['veiculo_modelo']) ?>
                                         </span>
@@ -312,15 +389,17 @@ $reservas = $stmt->fetchAll();
                                         $dataReservaPassou = strtotime($reserva['reserva_data']) < time();
                                         
                                         if ((empty($reserva['status']) || $reserva['status'] === 'pendente') && !$dataReservaPassou): ?>
-                                            <form method="post">
-                                                <input type="hidden" name="reserva_id" value="<?= $reserva['id'] ?>">
-                                                <input type="hidden" name="acao" value="confirmar">
-                                                <button type="submit" class="bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors"
-                                                        onclick="return confirm('Confirmar esta reserva?')">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
-                                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                                    </svg>
-                                                </button>
+                                            <button data-id="<?= $reserva['id'] ?>" class="bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors confirm-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                            </button>
+                                            <button data-id="<?= $reserva['id'] ?>" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors reject-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            </button>
                                             </form>
                                             <form method="post">
                                                 <input type="hidden" name="reserva_id" value="<?= $reserva['id'] ?>">
@@ -334,18 +413,13 @@ $reservas = $stmt->fetchAll();
                                                 </button>
                                             </form>
                                         <?php elseif ($reserva['status'] === 'confirmada' && $now >= $inicio && $now <= $fim): ?>
-                                            <form method="post">
-                                                <input type="hidden" name="reserva_id" value="<?= $reserva['id'] ?>">
-                                                <input type="hidden" name="acao" value="finalizar">
-                                                <button type="submit" class="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors"
-                                                        onclick="return confirm('Finalizar esta reserva antecipadamente?')">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 inline-block">
-                                                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-                                                        <line x1="4" y1="22" x2="4" y2="15"></line>
-                                                    </svg>
-                                                    Finalizar
-                                                </button>
-                                            </form>
+                                            <button data-id="<?= $reserva['id'] ?>" class="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors finish-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 inline-block">
+                                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                                                    <line x1="4" y1="22" x2="4" y2="15"></line>
+                                                </svg>
+                                                Finalizar
+                                            </button>
                                         <?php endif; ?>
                                         <a href="detalhes_reserva.php?id=<?= $reserva['id'] ?>" class="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
@@ -353,6 +427,20 @@ $reservas = $stmt->fetchAll();
                                                 <circle cx="12" cy="12" r="3"></circle>
                                             </svg>
                                         </a>
+
+                                        <?php if ($reserva['status'] === 'pago'): ?>
+                                            <button data-id="<?= $reserva['id'] ?>" class="bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors confirm-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                            </button>
+                                            <button data-id="<?= $reserva['id'] ?>" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 rounded-lg px-3 py-1 text-sm font-medium transition-colors reject-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
@@ -368,5 +456,75 @@ $reservas = $stmt->fetchAll();
     </footer>
 
     <script src="../assets/notifications.js"></script>
+
+    <script>
+        //Modal de confirmação
+        // Funções para manipulação dos modais
+        const confirmModal = document.getElementById('confirmModal');
+        const rejectModal = document.getElementById('rejectModal');
+        const finishModal = document.getElementById('finishModal');
+        const confirmForm = document.getElementById('confirmForm');
+        const rejectForm = document.getElementById('rejectForm');
+        const finishForm = document.getElementById('finishForm');
+        
+        // Adicionar eventos aos botões de confirmação
+        document.querySelectorAll('.confirm-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('confirmReservaId').value = this.getAttribute('data-id');
+                confirmModal.style.display = 'flex';
+            });
+        });
+        
+        // Adicionar eventos aos botões de rejeição
+        document.querySelectorAll('.reject-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('rejectReservaId').value = this.getAttribute('data-id');
+                rejectModal.style.display = 'flex';
+            });
+        });
+        
+        // Adicionar eventos aos botões de finalização
+        document.querySelectorAll('.finish-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('finishReservaId').value = this.getAttribute('data-id');
+                finishModal.style.display = 'flex';
+            });
+        });
+        
+        // Botões para fechar os modais
+        document.getElementById('cancelConfirm').addEventListener('click', () => {
+            confirmModal.style.display = 'none';
+        });
+        
+        document.getElementById('cancelReject').addEventListener('click', () => {
+            rejectModal.style.display = 'none';
+        });
+        
+        document.getElementById('cancelFinish').addEventListener('click', () => {
+            finishModal.style.display = 'none';
+        });
+        
+        // Fechar modal ao clicar fora da área do conteúdo
+        window.addEventListener('click', function(event) {
+            if (event.target === confirmModal) {
+                confirmModal.style.display = 'none';
+            }
+            if (event.target === rejectModal) {
+                rejectModal.style.display = 'none';
+            }
+            if (event.target === finishModal) {
+                finishModal.style.display = 'none';
+            }
+        });
+        
+        // Fechar modal com a tecla ESC
+        window.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                confirmModal.style.display = 'none';
+                rejectModal.style.display = 'none';
+                finishModal.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
